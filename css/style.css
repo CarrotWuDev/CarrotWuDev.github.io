@@ -1,7 +1,6 @@
-/* ========= 纯白主题 + 黑色边框 ========= */
 :root {
     --bg: #ffffff;
-    /* 整站纯白 */
+    /* 纯白背景 */
     --fg: #0b0f14;
     /* 主文字黑 */
     --muted: #4b5563;
@@ -35,7 +34,7 @@ a {
     text-decoration: none
 }
 
-/* ===== 整体布局：左不滚，右滚动 ===== */
+/* 布局：左不滚、右滚动 */
 .app {
     display: flex;
     height: 100vh;
@@ -51,7 +50,6 @@ a {
     flex-direction: column;
     gap: 24px;
     overflow: hidden;
-    /* 左侧不滚动 */
     background: #fff;
 }
 
@@ -64,7 +62,7 @@ a {
     background: #fff;
 }
 
-/* ===== 左侧内容 ===== */
+/* 左侧内容 */
 .brand {
     display: flex;
     align-items: center;
@@ -138,7 +136,7 @@ a {
     padding-top: 14px
 }
 
-/* ===== 右侧内容区 ===== */
+/* 右侧内容区 */
 .topbar {
     position: sticky;
     top: 0;
@@ -168,7 +166,7 @@ h2 {
     margin: 0 0 18px
 }
 
-/* ===== 展示卡片（展示框） ===== */
+/* 卡片（展示框） */
 .cards {
     display: flex;
     flex-wrap: wrap;
@@ -185,7 +183,6 @@ h2 {
     display: flex;
     flex-direction: column;
     transition: border-color .15s linear;
-    /* 只动画边框色 */
 }
 
 /* 内部分割线：黑色 */
@@ -216,16 +213,16 @@ h2 {
     border-bottom: 2px solid transparent;
 }
 
-.card:hover .out {
-    border-bottom-color: currentColor
-}
-
-/* 悬停：只改变边框色为 #2962FF；背景/文字/内部分割线保持原样 */
 .card:hover {
     border-color: var(--accent)
 }
 
-/* ===== 页脚 ===== */
+/* 只改边框色 */
+.card:hover .out {
+    border-bottom-color: currentColor
+}
+
+/* 页脚 */
 footer {
     padding: 16px 24px;
     border-top: 2px solid var(--line);
@@ -234,7 +231,7 @@ footer {
     background: #fff
 }
 
-/* ===== 移动端：左栏变顶部横栏 ===== */
+/* 响应式：移动端左栏顶置 */
 @media (max-width: 768px) {
     .app {
         flex-direction: column
