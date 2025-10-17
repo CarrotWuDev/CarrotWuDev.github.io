@@ -1,4 +1,283 @@
----
-layout: home
-# Index page
----
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>你的名字 · 展示页</title>
+<meta name="description" content="纯展示：软件 · 论文 · 照片 · 所见所得等外链跳转" />
+<style>
+  /* ========= 纯白主题 + 黑色边框 ========= */
+  :root{
+    --bg: #ffffff;     /* 整站纯白 */
+    --fg: #0b0f14;     /* 主文字黑 */
+    --muted: #4b5563;  /* 次级灰 */
+    --line: #000000;   /* 黑色边框/分割线 */
+    --accent: #2962FF; /* 悬停时卡片边框色 */
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font:15px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Inter,Helvetica,Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  }
+  a{color:inherit; text-decoration:none}
+
+  /* ===== 整体布局：左不滚，右滚动 ===== */
+  .app{display:flex; height:100vh; overflow:hidden; border:2px solid var(--line)}
+  .sidebar{
+    flex:0 0 280px; border-right:2px solid var(--line);
+    padding:24px 18px; display:flex; flex-direction:column; gap:24px;
+    overflow:hidden; /* 左侧不滚动 */
+    background:#fff;
+  }
+  .main{
+    flex:1; min-width:0; height:100vh;
+    overflow:auto; scroll-behavior:smooth; background:#fff;
+  }
+
+  /* ===== 左侧内容 ===== */
+  .brand{display:flex; align-items:center; gap:14px}
+  .avatar{
+    width:56px; height:56px; display:grid; place-items:center;
+    font-weight:900; border:2px solid var(--line); background:#fff;
+  }
+  .who{display:flex; flex-direction:column}
+  .who b{font-size:18px; font-weight:900; letter-spacing:.4px}
+  .who small{color:var(--muted)}
+  .social{display:flex; gap:12px; flex-wrap:wrap}
+  .social a{color:var(--fg); border-bottom:2px solid transparent}
+  .social a:hover{border-bottom-color:var(--line)}
+
+  .type-nav{display:flex; flex-direction:column; gap:6px}
+  .type-nav a{
+    padding:8px 4px; font-weight:900; text-transform:uppercase; letter-spacing:1px;
+    border-left:4px solid transparent;
+  }
+  .type-nav a[aria-current="true"], .type-nav a.active{ border-left-color:var(--line) }
+
+  .signature{
+    color:var(--muted); font-size:13px; line-height:1.5;
+    border-top:2px solid var(--line); padding-top:14px
+  }
+
+  /* ===== 右侧内容区 ===== */
+  .topbar{
+    position:sticky; top:0; z-index:5;
+    background:#fff; border-bottom:2px solid var(--line);
+    padding:10px 16px; font-weight:900; letter-spacing:1px;
+  }
+  section{
+    padding:28px 24px 34px; border-bottom:2px solid var(--line);
+    scroll-margin-top:18px;
+  }
+  h2{margin:0 0 16px; font-size:26px; font-weight:1000; letter-spacing:1.2px}
+  .desc{color:var(--muted); margin:0 0 18px}
+
+  /* ===== 展示卡片（展示框） ===== */
+  .cards{display:flex; flex-wrap:wrap; gap:18px}
+  .card{
+    flex:1 1 280px; max-width:360px;
+    background:#fff; color:var(--fg);
+    border:2px solid var(--line);
+    padding:16px; display:flex; flex-direction:column;
+    transition: border-color .15s linear; /* 只动画边框色 */
+  }
+  /* 内部分割线：黑色 */
+  .card > * + *{
+    border-top:2px solid var(--line);
+    padding-top:12px; margin-top:12px;
+  }
+  .card h3{margin:0; font-size:18px; font-weight:900; letter-spacing:.4px}
+  .card p{margin:0; color:var(--muted)}
+  .out{
+    margin-top:auto; font-weight:900; text-transform:uppercase; letter-spacing:.5px;
+    align-self:flex-start; border-bottom:2px solid transparent;
+  }
+  .card:hover .out{ border-bottom-color:currentColor }
+
+  /* 悬停：只改变边框色为 #2962FF；背景/文字/内部分割线保持原样 */
+  .card:hover{ border-color:var(--accent) }
+
+  /* ===== 页脚 ===== */
+  footer{padding:16px 24px; border-top:2px solid var(--line); color:var(--muted); font-size:13px; background:#fff}
+
+  /* ===== 移动端：左栏变顶部横栏 ===== */
+  @media (max-width: 768px){
+    .app{flex-direction:column}
+    .sidebar{
+      position:sticky; top:0; z-index:10;
+      flex:0 0 auto; border-right:none; border-bottom:2px solid var(--line);
+      padding:12px 10px; background:#fff;
+    }
+    .type-nav{flex-direction:row; overflow:auto; white-space:nowrap; gap:14px}
+    .type-nav a{border-left:none; border-bottom:3px solid transparent}
+    .type-nav a[aria-current="true"]{border-bottom-color:var(--line)}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- 左：固定，不滚动 -->
+  <aside class="sidebar" aria-label="侧边栏">
+    <a class="brand" href="/" aria-label="主页">
+      <div class="avatar">H</div>
+      <div class="who">
+        <b>你的名字</b>
+        <small>Software · Papers · Photos · Notes</small>
+      </div>
+    </a>
+
+    <nav class="social" aria-label="社交">
+      <a href="mailto:you@example.com">Email</a>
+      <a href="https://github.com/yourusername" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+
+    <!-- 展示类型标签：点击滚动右侧内容 -->
+    <nav class="type-nav" aria-label="展示类型">
+      <a href="#software" data-target="software" class="active" aria-current="true">软件</a>
+      <a href="#papers"   data-target="papers">论文</a>
+      <a href="#photos"   data-target="photos">照片</a>
+      <a href="#notes"    data-target="notes">所见所得</a>
+      <a href="#talks"    data-target="talks">演讲</a>
+      <a href="#teaching" data-target="teaching">教学</a>
+    </nav>
+
+    <div class="signature">
+      做研究的程序员 · 写代码的研究者
+    </div>
+  </aside>
+
+  <!-- 右：可滚动 -->
+  <main class="main" id="main" tabindex="-1">
+    <div class="topbar">精选展示</div>
+
+    <!-- 软件 -->
+    <section id="software" aria-labelledby="h-software">
+      <h2 id="h-software">软件</h2>
+      <p class="desc">仅展示名称与简述，点击后跳转到外部页面。</p>
+      <div class="cards">
+        <a class="card" href="https://your-software-1.example.com" target="_blank" rel="noopener">
+          <h3>WordMarker</h3>
+          <p>Markdown → Word 桌面工具（Tauri + Pandoc）</p>
+          <span class="out">查看</span>
+        </a>
+        <a class="card" href="https://your-software-2.example.com" target="_blank" rel="noopener">
+          <h3>DataLab</h3>
+          <p>数据清洗与可视化小工具</p>
+          <span class="out">访问</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 论文 -->
+    <section id="papers" aria-labelledby="h-papers">
+      <h2 id="h-papers">论文</h2>
+      <div class="cards">
+        <a class="card" href="https://arxiv.org/abs/xxxx.xxxxx" target="_blank" rel="noopener">
+          <h3>Early-Exit BERT for Efficient Inference</h3>
+          <p>模型压缩 · 动态早退出 · GLUE 实证</p>
+          <span class="out">ArXiv</span>
+        </a>
+        <a class="card" href="https://doi.org/xx.xxxx/xxxxx" target="_blank" rel="noopener">
+          <h3>GF-DHIT: Guided Fast Decoding</h3>
+          <p>奖励引导 + 复杂度自适应</p>
+          <span class="out">期刊页</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 照片 -->
+    <section id="photos" aria-labelledby="h-photos">
+      <h2 id="h-photos">照片</h2>
+      <div class="cards">
+        <a class="card" href="https://photos.app.goo.gl/xxxx" target="_blank" rel="noopener">
+          <h3>Japan · Osaka / Nara</h3>
+          <p>街头 · 建筑 · 夜色</p>
+          <span class="out">相册</span>
+        </a>
+        <a class="card" href="https://photos.app.goo.gl/yyyy" target="_blank" rel="noopener">
+          <h3>Korea · Busan</h3>
+          <p>海岸 · 城市 · 美食</p>
+          <span class="out">相册</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 所见所得 -->
+    <section id="notes" aria-labelledby="h-notes">
+      <h2 id="h-notes">所见所得</h2>
+      <div class="cards">
+        <a class="card" href="https://mp.weixin.qq.com/xxxxx" target="_blank" rel="noopener">
+          <h3>AI 项目从原型到上线</h3>
+          <p>性能、稳定性、监控与回滚</p>
+          <span class="out">阅读</span>
+        </a>
+        <a class="card" href="https://blog.example.com/abcd" target="_blank" rel="noopener">
+          <h3>向量与坐标：教材写作札记</h3>
+          <p>结构递进教学法 · 例子与比喻</p>
+          <span class="out">查看</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 演讲 -->
+    <section id="talks" aria-labelledby="h-talks">
+      <h2 id="h-talks">演讲</h2>
+      <div class="cards">
+        <a class="card" href="https://slides.com/you/talk1" target="_blank" rel="noopener">
+          <h3>与大模型共写：教学与科研</h3>
+          <p>外语学院讲座 · Key takeaways</p>
+          <span class="out">Slides</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 教学 -->
+    <section id="teaching" aria-labelledby="h-teaching">
+      <h2 id="h-teaching">教学</h2>
+      <div class="cards">
+        <a class="card" href="https://course.example.com/ai-literacy" target="_blank" rel="noopener">
+          <h3>人工智能通识课 · 理工科版</h3>
+          <p>课程大纲 / 配套资料 / 案例</p>
+          <span class="out">进入</span>
+        </a>
+      </div>
+    </section>
+
+    <footer>© <span id="y"></span> 你的名字</footer>
+  </main>
+</div>
+
+<script>
+/* 左侧标签点击 → 右侧容器平滑滚动 */
+const main = document.getElementById('main');
+document.querySelectorAll('.type-nav a').forEach(a=>{
+  a.addEventListener('click', e=>{
+    e.preventDefault();
+    const id = a.dataset.target;
+    document.getElementById(id)?.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+});
+
+/* 右侧滚动联动左侧高亮 */
+const linkMap = new Map();
+document.querySelectorAll('.type-nav a').forEach(a=>linkMap.set(a.dataset.target,a));
+
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){
+      linkMap.forEach(el=>el.removeAttribute('aria-current'));
+      linkMap.get(en.target.id)?.setAttribute('aria-current','true');
+    }
+  });
+},{root: main, threshold: 0.6});
+
+document.querySelectorAll('main section[id]').forEach(sec=>io.observe(sec));
+
+/* 年份 */
+document.getElementById('y').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
