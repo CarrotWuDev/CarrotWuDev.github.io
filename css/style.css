@@ -39,7 +39,6 @@ a {
     display: flex;
     height: 100vh;
     overflow: hidden;
-    border: 2px solid var(--line)
 }
 
 .sidebar {
@@ -59,7 +58,40 @@ a {
     height: 100vh;
     overflow: auto;
     scroll-behavior: smooth;
-    background: #fff;
+    background: var(--bg);
+}
+
+/* 滚动条：默认隐藏，悬停/滚动时显示 */
+.main::-webkit-scrollbar {
+    width: 8px;
+}
+
+.main::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.main::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.main:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.main:hover::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+/* Firefox 支持 */
+.main {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+.main:hover {
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
 /* 左侧内容 */
@@ -72,11 +104,8 @@ a {
 .avatar {
     width: 56px;
     height: 56px;
-    display: grid;
-    place-items: center;
-    font-weight: 900;
-    border: 2px solid var(--line);
-    background: #fff;
+    background: var(--bg);
+    object-fit: cover;
 }
 
 .who {
@@ -137,17 +166,6 @@ a {
 }
 
 /* 右侧内容区 */
-.topbar {
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    background: #fff;
-    border-bottom: 2px solid var(--line);
-    padding: 10px 16px;
-    font-weight: 900;
-    letter-spacing: 1px;
-}
-
 section {
     padding: 28px 24px 34px;
     border-bottom: 2px solid var(--line);
@@ -166,60 +184,240 @@ h2 {
     margin: 0 0 18px
 }
 
-/* 卡片（展示框） */
+/* 卡片容器：Grid 自动响应式布局 */
 .cards {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
 }
 
+/* 单个卡片：Flexbox 垂直布局 */
 .card {
-    flex: 1 1 280px;
-    max-width: 360px;
-    background: #fff;
+    background: var(--bg);
     color: var(--fg);
     border: 2px solid var(--line);
-    padding: 16px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    transition: border-color .15s linear;
-}
-
-/* 内部分割线：黑色 */
-.card>*+* {
-    border-top: 2px solid var(--line);
-    padding-top: 12px;
-    margin-top: 12px;
+    gap: 12px;
+    transition: border-color .15s, box-shadow .15s;
 }
 
 .card h3 {
     margin: 0;
     font-size: 18px;
     font-weight: 900;
-    letter-spacing: .4px
+    letter-spacing: .4px;
 }
 
-.card p {
-    margin: 0;
-    color: var(--muted)
+/* 卡片头部：标题 + 状态并排 */
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
+.card-header h3 {
+    flex: 1;
+    min-width: 0;
+}
+
+.card-header .status {
+    flex-shrink: 0;
+}
+
+/* 差异化卡片背景 */
+/* 差异化卡片背景 & 间距控制 */
+.card-project {
+    background: #fafafa;
+    gap: 0;
+    /* 取消统一gap，改用margin控制 */
+}
+
+.card-project .card-header {
+    margin-bottom: 8px;
+    /* 标题与描述的连接 */
+}
+
+/* 独立开发者卡片：严格对齐模式 */
+.card-project h3 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-project p {
+    line-height: 1.5;
+    height: 4.5em;
+    /* 强制3行高度 */
+    margin-bottom: 16px;
+    /* 描述与技术栈的区分 */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-project .tech-tags {
+    height: 26px;
+    /* 限制为1行高度 */
+    margin-bottom: 20px;
+    /* 技术栈与底部的距离 */
+    overflow: hidden;
+}
+
+/* 独立开发者卡片：严格对齐模式 & 差异化间距 */
+/* ... (unchanged project card styles) ... */
+
+/* 游戏卡片：严格对齐模式 & 差异化间距 (5行内容) */
+/* 游戏卡片：严格对齐模式 & 差异化间距 (5行内容) */
+.card-game {
+    background: #faf5ff;
+    gap: 0;
+}
+
+.card-game .card-header {
+    margin-bottom: 8px;
+    /* 标题与描述的连接 */
+}
+
+.card-game h3 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-game p {
+    line-height: 1.5;
+    height: 4.5em;
+    /* 描述强制3行 */
+    margin-bottom: 0;
+    /* 描述与评价之间不需要大的一级间距，由 review 的 top margin 控制 */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-game .review {
+    position: relative;
+    /* 为伪元素定位 */
+    height: 3em;
+    /* 评价强制2行 */
+    overflow: hidden;
+    margin-top: 20px;
+    /* 【核心修复】强制拉开与上方描述的距离 */
+    margin-bottom: 16px;
+    /* 评价与标签的间距 */
+    padding-left: 12px;
+    font-style: italic;
+    font-size: 13px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* 使用伪元素绘制精致的左侧线条 */
+.card-game .review::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 2px;
+    /* 顶部微调 */
+    bottom: 2px;
+    /* 底部微调 */
+    width: 3px;
+    background-color: var(--accent);
+    border-radius: 2px;
+}
+
+.card-game .game-tags {
+    height: 26px;
+    /* 标签强制1行 */
+    margin-bottom: 20px;
+    /* 标签与底部的距离 */
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* 状态：彩色圆点 + 文字 */
+.card .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.card .status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+}
+
+.card .status[data-status="维护中"]::before {
+    background: #f59e0b;
+}
+
+.card .status[data-status="规划中"]::before {
+    background: #3b82f6;
+}
+
+.card .status[data-status="已完成"]::before {
+    background: #6b7280;
+}
+
+.card .status[data-status="已通关"]::before {
+    background: #10b981;
+}
+
+/* 统一标签样式：技术栈 & 游戏标签 */
+.card .tech-tags,
+.card .game-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.card .tech-tag,
+.card .game-tag {
+    font-size: 12px;
+    color: var(--muted);
+    background: #e5e7eb;
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* 链接：弱化处理 */
 .out {
     margin-top: auto;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    align-self: flex-start;
-    border-bottom: 2px solid transparent;
+    padding-top: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.out::after {
+    content: '→';
+}
+
+.out:hover {
+    text-decoration: underline;
 }
 
 .card:hover {
-    border-color: var(--accent)
-}
-
-/* 只改边框色 */
-.card:hover .out {
-    border-bottom-color: currentColor
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(41, 98, 255, 0.1);
 }
 
 /* 页脚 */
