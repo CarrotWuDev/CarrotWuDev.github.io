@@ -63,7 +63,6 @@
 }
 
 /* Header 移到底部后的样式 */
-/* Header 移到底部后的样式 */
 .card-photo.is-gallery .card-header {
     order: 2;
     /* 虽然我们在JS里移动了节点，但在Flex容器里用order保证绝对稳妥，或者不用 */
@@ -83,6 +82,10 @@
 }
 
 .card-photo.is-gallery .card-header h3 {
+    margin: 0;
+}
+
+.card-photo.is-gallery .card-header .status {
     margin: 0;
 }
 

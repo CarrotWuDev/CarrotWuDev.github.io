@@ -137,7 +137,6 @@ export const RenderService = {
                 background: var(--accent-${type});
             }
             /* Card hover for ${type} */
-            /* Card hover for ${type} */
             .card-${type}:hover {
                 border-color: var(--accent-${type});
                 box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-${type}), transparent 40%);
@@ -254,7 +253,7 @@ export const RenderService = {
         return `
         <div class="card card-project">
             ${this.renderHeader(it.title, it.status)}
-            ${it.desc ? `<p class="line-clamp-3" style="margin-bottom:16px;">${it.desc}</p>` : ''}
+            ${it.desc ? `<p class="line-clamp-3">${it.desc}</p>` : ''}
             ${this.renderTags(it.tech, 'tech-tags')}
             ${this.renderFooterLink(it.linkUrl, it.linkText)}
         </div>`;
@@ -333,7 +332,7 @@ export const RenderService = {
         <div class="card card-photo is-gallery" data-gallery-id="${slugify(it.title)}">
             <div class="card-header">
                 <h3>${it.title}</h3>
-                <span class="status" style="margin:0;">图集</span>
+                <span class="status">图集</span>
             </div>
             <div class="gallery-wrapper">
                 <div class="gallery-indicator">1 / ${it.photos.length}</div>
