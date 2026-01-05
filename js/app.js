@@ -1,5 +1,6 @@
 import { DataService } from './services/data.js';
 import { RenderService } from './ui/render.js';
+import { initTheme } from './ui/theme.js';
 
 /**
  * 应用程序入口
@@ -155,5 +156,8 @@ function setupAutoHideHeader() {
 // 启动
 init();
 
-// 初始化移动端滚动隐藏（在 DOM 加载后执行）
-document.addEventListener('DOMContentLoaded', setupAutoHideHeader);
+// 初始化移动端滚动隐藏和主题管理（在 DOM 加载后执行）
+document.addEventListener('DOMContentLoaded', () => {
+    setupAutoHideHeader();
+    initTheme();
+});

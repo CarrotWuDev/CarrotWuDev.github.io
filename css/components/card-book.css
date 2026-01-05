@@ -48,12 +48,14 @@
     height: 100%;
     object-fit: contain;
     background: var(--bg-subtle);
-    transition: transform 0.3s ease;
+    filter: grayscale(100%);
+    transition: transform 0.3s ease, filter 0.3s ease;
 }
 
-/* 封面悬停效果：微放大 */
+/* 封面悬停效果：微放大 + 恢复原色 */
 .card-book:hover .book-cover {
     transform: scale(1.03);
+    filter: grayscale(0);
 }
 
 /* ====== 内容区域 ====== */
@@ -135,7 +137,7 @@
     margin-left: 16px;
     margin-right: 16px;
     /* 重置继承的 padding-left/right，因为我们用 margin 代替 */
-    border-left: 3px solid var(--accent-book, var(--accent));
+    border-left: 3px solid var(--line);
     transition: border-color 0.15s;
     align-self: start;
 

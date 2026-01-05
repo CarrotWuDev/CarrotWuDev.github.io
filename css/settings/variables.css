@@ -32,3 +32,18 @@
     --space-page-mobile: 16px;
     --space-section-mobile: 32px;
 }
+
+/* ====== 暗色主题 ====== */
+:root[data-theme="dark"] {
+    /* 背景与前景色反转 */
+    --bg: #0b0f14;
+    --bg-subtle: #1a1f2b;
+    --fg: #f0f0f0;
+    --muted: #9ca3af;
+
+    /* 边框：白色（Neo-Brutalism 风格对称） */
+    --line: #ffffff;
+
+    /* 阴影：改为淡白发光效果（在深色背景上提供层次感） */
+    --shadow: rgba(255, 255, 255, 0.15);
+}

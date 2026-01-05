@@ -71,8 +71,8 @@
     margin-bottom: 0;
     margin-top: -4px;
     /* 拉近一点距离 */
-    background: #fff;
-    /* 确保背景色 */
+    background: var(--bg);
+    /* 确保背景色跟随主题 */
     position: relative;
     z-index: 2;
     /* Replacement for inline style */
@@ -166,7 +166,7 @@
     transform: translateY(-50%);
     width: 32px;
     height: 32px;
-    background: #fff;
+    background: var(--bg);
     border: 2px solid var(--line);
     color: var(--fg);
     display: flex;
@@ -196,7 +196,7 @@
     position: absolute;
     top: 12px;
     right: 12px;
-    background: #fff;
+    background: var(--bg);
     color: var(--fg);
     font-size: 11px;
     padding: 4px 8px;
