@@ -1,0 +1,91 @@
+/* 游戏卡片 */
+.card-game {
+    row-gap: 8px;
+    overflow: hidden;
+}
+
+.card-game.has-cover {
+    padding-top: 0;
+}
+
+.card-game:hover {
+    border-color: var(--accent-game);
+    box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-game), transparent 40%);
+}
+
+
+
+.card-game h3 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    grid-row: 3;
+    /* 显式指定行：第3行 (Meta) */
+}
+
+.card-cover {
+    width: calc(100% + 40px);
+    margin-left: -20px;
+    height: 140px;
+    object-fit: cover;
+    filter: grayscale(100%);
+    transition: transform 0.3s ease, filter 0.3s ease;
+    grid-row: 1;
+    /* 显式指定行：第1行 (封面) */
+}
+
+.card-game:hover .card-cover {
+    transform: scale(1.03);
+    filter: grayscale(0);
+}
+
+.review {
+    background: var(--bg-subtle);
+    padding: 10px 12px;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--muted);
+    line-height: 1.5;
+    border-left: 3px solid var(--line);
+    transition: border-color .15s;
+    min-height: calc(2 * 1.5em + 20px);
+    /* 最小高度保证对齐 */
+    grid-row: 5;
+    /* 显式指定行：第5行 (主要内容) */
+    align-self: start;
+    /* 靠上对齐 */
+    overflow: hidden;
+    /* 确保容器溢出隐藏 */
+}
+
+.review p {
+    margin: 0;
+    /* 移除默认边距，防止布局错位 */
+}
+
+.card-game:hover .review {
+    border-color: var(--accent-game);
+}
+
+
+
+/* 游戏卡片悬停：标签变强调色 */
+.card-game:hover .tag {
+    border-color: var(--accent-game);
+    color: var(--accent-game);
+    box-shadow: 2px 2px 0 color-mix(in srgb, var(--accent-game), transparent 40%);
+}
+
+/* 游戏卡片链接 */
+.card-game .out {
+    color: var(--muted);
+}
+
+.card-game:hover .out {
+    color: var(--accent-game);
+}

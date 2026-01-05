@@ -1,0 +1,55 @@
+/* 项目卡片 */
+.card-project {
+    gap: 0;
+}
+
+.card-project:hover {
+    border-color: var(--accent-project);
+    box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-project), transparent 40%);
+}
+
+.card-project .card-header {
+    margin-bottom: 8px;
+}
+
+.card-project h3 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-project p {
+    line-height: 1.5;
+    height: 4.5em;
+    /* Fallback height */
+    margin-bottom: 16px;
+    overflow: hidden;
+    grid-row: 5;
+    /* 显式指定行：第5行 (描述作为主要内容) */
+    align-self: start;
+}
+
+.card-project .tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+    grid-row: 4;
+    /* 显式指定行：第4行 (Tags) - 即使在DOM中位于p之后，也会被拉到上面显示 */
+}
+
+/* 项目卡片悬停：标签变强调色 */
+.card-project:hover .tag {
+    border-color: var(--accent-project);
+    color: var(--accent-project);
+    box-shadow: 2px 2px 0 color-mix(in srgb, var(--accent-project), transparent 40%);
+}
+
+/* 项目卡片链接 */
+.card-project .out {
+    color: var(--muted);
+}
+
+.card-project:hover .out {
+    color: var(--accent-project);
+}

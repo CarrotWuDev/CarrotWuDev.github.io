@@ -1,0 +1,221 @@
+/* 布局：左不滚、右滚动 */
+.app {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sidebar {
+    flex: 0 0 280px;
+    border-right: 2px solid var(--line);
+    padding: 24px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    overflow: hidden;
+    background: var(--bg);
+}
+
+/* 个人信息区 */
+.profile {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--line);
+}
+
+/* 顶部：头像 + 信息 */
+.profile-header {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.avatar {
+    width: 72px;
+    height: 72px;
+    flex-shrink: 0;
+    object-fit: cover;
+    border: 2px solid var(--line);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    /* 可点击 */
+    transition: transform 0.1s;
+}
+
+.avatar:active {
+    transform: scale(0.95);
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.profile-name {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--fg);
+    letter-spacing: .5px;
+    /* 移除之前的链接悬停效果 */
+    cursor: default;
+}
+
+/* 底部：标签 */
+.profile-tags {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* 导航链接 */
+nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+nav a {
+    display: block;
+    padding: 10px 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--muted);
+    border: 2px solid transparent;
+    /* 预留边框位置防止抖动 */
+    transition: all .15s;
+}
+
+nav a:hover {
+    color: var(--fg);
+    background: rgba(15, 23, 42, 0.05);
+}
+
+nav a[aria-current="true"] {
+    color: #fff;
+    border-color: var(--line);
+    box-shadow: 4px 4px 0 var(--shadow);
+}
+
+/* 类型专属强调色 */
+nav a[aria-current="true"][data-type="project"] {
+    background: var(--accent-project);
+}
+
+nav a[aria-current="true"][data-type="game"] {
+    background: var(--accent-game);
+}
+
+nav a[aria-current="true"][data-type="photo"] {
+    background: var(--accent-photo);
+}
+
+nav a[aria-current="true"][data-type="book"] {
+    background: var(--accent-book);
+}
+
+/* 未定义类型的回退色 */
+nav a[aria-current="true"]:not([data-type]),
+nav a[aria-current="true"][data-type="default"] {
+    background: var(--accent);
+}
+
+.main {
+    flex: 1;
+    min-width: 0;
+    height: 100vh;
+    overflow: auto;
+    scroll-behavior: smooth;
+    scrollbar-gutter: stable;
+    background: var(--bg);
+    padding-inline: var(--space-page);
+}
+
+/* 滚动条：默认隐藏，悬停/滚动时显示 */
+.main::-webkit-scrollbar {
+    width: 8px;
+}
+
+.main::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.main::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.main:hover::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.main:hover::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+/* 社交链接 (内嵌在 profile 中的简洁文字链接) */
+.social {
+    display: flex;
+    gap: 16px;
+}
+
+.social a {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: color .15s;
+}
+
+.social a:hover {
+    color: var(--fg);
+}
+
+/* Sidebar Footer (Slogan + Copyright) */
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 2px solid var(--line);
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    /* 紧凑间距 */
+}
+
+.sidebar-footer footer {
+    font-size: 12px;
+    opacity: 0.8;
+    /* 重置全局 footer 样式 */
+    border-top: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* 主内容容器：section 间距 */
+#contentRoot {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-section);
+    padding-top: var(--space-section);
+    /* 底部留白，提升视觉呼吸感，防止内容贴底 */
+    padding-bottom: 10vh;
+}
+
+/* Section 分隔线（第一个除外） */
+#contentRoot section+section {
+    border-top: 2px solid var(--line);
+    padding-top: var(--space-section);
+}
+
+/* 空状态组件 */
+.empty-state {
+    color: var(--muted);
+    padding: 20px 0;
+}

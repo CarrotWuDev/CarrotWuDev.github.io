@@ -1,0 +1,216 @@
+/* 照片卡片 */
+.card-photo {
+    gap: 0;
+    padding: 0;
+    padding-bottom: 16px;
+    overflow: hidden;
+}
+
+/* 照片卡片悬停效果 */
+.card-photo:hover {
+    border-color: var(--accent-photo);
+    box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-photo), transparent 40%);
+}
+
+/* 照片图片 */
+.card-photo-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    grid-row: 1;
+    /* 显式指定行：第1行 (封面) */
+}
+
+.card-photo:hover .card-photo-img {
+    transform: scale(1.03);
+}
+
+.card-photo.has-photo> :not(.card-photo-img) {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.card-photo h3 {
+    margin-top: 16px;
+    margin-bottom: 8px;
+    white-space: normal;
+    /* Allow wrap */
+    grid-row: 2;
+    /* 显式指定行：第2行 (标题) */
+}
+
+.photo-meta {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    grid-row: 3;
+    /* 显式指定行：第3行 (Meta) */
+}
+
+/* ====== 照片图集 (Gallery) ====== */
+
+/* 图集卡片调整 */
+.card-photo.is-gallery {
+    padding-bottom: 0;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header 移到底部后的样式 */
+/* Header 移到底部后的样式 */
+.card-photo.is-gallery .card-header {
+    order: 2;
+    /* 虽然我们在JS里移动了节点，但在Flex容器里用order保证绝对稳妥，或者不用 */
+    padding: 12px 20px 16px 20px;
+    /* 顶部稍小，底部标准 */
+    margin-bottom: 0;
+    margin-top: -4px;
+    /* 拉近一点距离 */
+    background: #fff;
+    /* 确保背景色 */
+    position: relative;
+    z-index: 2;
+    /* Replacement for inline style */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-photo.is-gallery .card-header h3 {
+    margin: 0;
+}
+
+/* 包装器：用于定位悬浮元素 */
+.gallery-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* 画廊容器：横向滚动，全宽 */
+.gallery-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    width: 100%;
+    scrollbar-width: none;
+    /* Firefox 隐藏滚动条 */
+    -webkit-overflow-scrolling: touch;
+    /* iOS顺滑滚动 */
+}
+
+.gallery-container::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari 隐藏滚动条 */
+}
+
+/* 单个滑块项：全宽 (Full Bleed) */
+.gallery-item {
+    min-width: 100%;
+    /* 强制占满卡片宽度 */
+    scroll-snap-align: center;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 画廊内图片：满宽显示 */
+.gallery-item .card-photo-img {
+    height: 200px;
+    /* 保持与单图一致的高度 */
+    width: 100%;
+    object-fit: cover;
+    margin: 0;
+    border-radius: 0;
+    /* 直角，无边框 */
+}
+
+/* 画廊信息区：模拟单卡片的内边距 */
+.gallery-info {
+    padding: 16px 20px 16px 20px;
+    /* Top 16px matches .card-photo h3 margin-top */
+}
+
+.gallery-info h4 {
+    margin: 0 0 8px 0;
+    /* matches .card-photo h3 margin-bottom */
+    font-size: 18px;
+    /* 统一为 18px (与 .card h3 一致) */
+    font-weight: 900;
+    /* 统一字重 (与 .card h3 一致) */
+    color: var(--fg);
+    letter-spacing: .4px;
+    /* 统一字间距 */
+}
+
+/* 导航按钮 (Prev/Next) */
+.gallery-nav.hidden {
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+.gallery-nav {
+    position: absolute;
+    top: 100px;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    background: #fff;
+    border: 2px solid var(--line);
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 2;
+}
+
+.gallery-wrapper:hover .gallery-nav {
+    opacity: 1;
+}
+
+.gallery-nav.prev {
+    left: 8px;
+}
+
+.gallery-nav.next {
+    right: 8px;
+}
+
+/* 页码指示器 - Neo-Brutalism 风格 */
+.gallery-indicator {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #fff;
+    color: var(--fg);
+    font-size: 11px;
+    padding: 4px 8px;
+    border: 2px solid var(--line);
+    pointer-events: none;
+    z-index: 2;
+    font-weight: 600;
+    box-shadow: 1px 1px 0 var(--shadow);
+}
+
+/* 悬停效果复用：仅图片放大，不再变边框颜色 */
+.gallery-item:hover .card-photo-img {
+    transform: scale(1.03);
+}
+
+/* 交互提示：Zoom In 光标 */
+.card-photo-img,
+.gallery-item .card-photo-img {
+    cursor: zoom-in;
+}

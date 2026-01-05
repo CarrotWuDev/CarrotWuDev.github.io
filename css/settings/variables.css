@@ -1,0 +1,30 @@
+:root {
+    /* 全局背景与前景色 */
+    --bg: #ffffff;
+    --bg-subtle: #f8f8f8;
+    --fg: #0b0f14;
+    --muted: #4b5563;
+    --line: #000000;
+
+    /* 全局强调色（用于通用元素） */
+    --accent: #6366f1;
+
+    /* 类型专属强调色 */
+    --accent-project: #2563eb;
+    /* Blue-600: 项目专属 */
+    --accent-game: #dc2626;
+    /* Red-600: 游戏专属 */
+    --accent-photo: #ea580c;
+    /* Orange-600: 照片专属 */
+    --accent-book: #10b981;
+    /* Emerald-500: 读书专属 */
+
+    /* 间距 */
+    --space-page: 32px;
+    --space-section: 48px;
+    --space-card: 18px;
+    --space-card-padding: 20px;
+
+    /* 阴影 */
+    --shadow: rgba(15, 23, 42, 0.1);
+}

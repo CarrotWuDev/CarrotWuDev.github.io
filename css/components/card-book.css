@@ -1,0 +1,190 @@
+/* ====== 读书卡片 (Book Card) ====== */
+
+/**
+ * 读书卡片采用左图右文布局
+ * - 左侧：封面图片（固定宽度）
+ * - 右侧：内容区（标题、作者、标签、评价、链接）
+ * 
+ * 使用 Grid + Subgrid 实现跨卡片元素对齐
+ */
+
+/* 读书卡片容器：覆盖默认网格列宽，适配横向布局 */
+.cards:has(.card-book) {
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+}
+
+/* 卡片容器：2列布局 + 继承父容器5行轨道 */
+.card-book {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    /* 封面(140px) | 内容(自适应) */
+    grid-template-rows: subgrid;
+    /* 继承父容器行轨道 */
+    grid-row: span 5;
+    /* 跨越5行 */
+
+    padding: 0;
+    overflow: hidden;
+    min-width: 360px;
+    /* 横向布局需要更宽的最小宽度 */
+    min-height: 220px;
+    /* 确保有足够高度容纳所有内容 */
+}
+
+/* 悬停效果：边框变色 + 阴影变色（与其他卡片类型统一） */
+.card-book:hover {
+    border-color: var(--accent-book);
+    box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-book), transparent 40%);
+}
+
+/* ====== 封面区域 ====== */
+
+.book-cover {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    /* 从第1行到最后一行（跨全部5行） */
+
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: var(--bg-subtle);
+    transition: transform 0.3s ease;
+}
+
+/* 封面悬停效果：微放大 */
+.card-book:hover .book-cover {
+    transform: scale(1.03);
+}
+
+/* ====== 内容区域 ====== */
+
+/* 内容区公共样式：右侧内边距 */
+.card-book> :not(.book-cover) {
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+/* 第1行：标题 + 状态 */
+.card-book .card-header {
+    grid-column: 2;
+    grid-row: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 16px;
+}
+
+.card-book .card-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0.4px;
+
+    /* 标题过长时省略 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+/* 第2行：作者 · 年份 */
+.book-meta {
+    grid-column: 2;
+    grid-row: 2;
+
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 第3行：标签区域（由 subgrid 行轨道决定高度） */
+.card-book .tags-group {
+    grid-column: 2;
+    grid-row: 3;
+
+    /* 与游戏卡片保持一致：不设固定高度，由 subgrid 行轨道自然分配 */
+    align-content: start;
+    margin-bottom: 0;
+}
+
+/* 第4行：评价区域（固定2行，超出省略） */
+.book-review {
+    grid-column: 2;
+    grid-row: 4;
+
+    background: var(--bg-subtle);
+    /* 保持与其他内容区域相同的左右间距（继承自父级选择器） */
+    /* padding-left/right 由 .card-book > :not(.book-cover) 设置为 16px */
+    padding-top: 10px;
+    padding-bottom: 10px;
+    /* 评价区内部左右 padding（在边框之后） */
+    padding-left: calc(16px + 12px);
+    /* 16px 与其他元素对齐 + 12px 内部间距 */
+    padding-right: calc(16px + 12px);
+
+    font-size: 13px;
+    font-style: italic;
+    color: var(--muted);
+    line-height: 1.5;
+    /* 左边框需要与其他内容左对齐，使用 margin 定位 */
+    margin-left: 16px;
+    margin-right: 16px;
+    /* 重置继承的 padding-left/right，因为我们用 margin 代替 */
+    border-left: 3px solid var(--accent-book, var(--accent));
+    transition: border-color 0.15s;
+    align-self: start;
+
+    /* 确保容器隐藏溢出内容，配合内部 p 标签的 line-clamp */
+    overflow: hidden;
+}
+
+/* 内部文本容器：负责截断 */
+.book-review p {
+    margin: 0;
+    /* 固定2行，超出省略 */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    /* 标准属性 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* 评价边框悬停效果 */
+.card-book:hover .book-review {
+    border-left-color: var(--accent-book);
+}
+
+/* 第5行：链接 */
+.card-book .out {
+    grid-column: 2;
+    grid-row: 5;
+
+    align-self: end;
+    padding-bottom: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.15s;
+}
+
+/* 链接悬停效果 */
+.card-book:hover .out {
+    color: var(--accent-book);
+}
+
+/* ====== 标签悬停效果 ====== */
+
+.card-book:hover .tag {
+    border-color: var(--accent-book);
+    color: var(--accent-book);
+    box-shadow: 2px 2px 0 color-mix(in srgb, var(--accent-book), transparent 40%);
+}

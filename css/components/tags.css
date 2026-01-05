@@ -1,0 +1,29 @@
+/* 标签基类 - 公共样式 */
+
+/* 侧边栏个人标签特化 */
+.profile-tag {
+    font-size: 12px;
+    padding: 2px 6px;
+    margin: 2px;
+}
+
+.tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    background: var(--bg);
+    border: 2px solid var(--line);
+    color: var(--fg);
+    box-shadow: 2px 2px 0 var(--shadow);
+    transition: all .15s;
+}
+
+/* 标签容器 - 统一布局 */
+.tags-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+    /* 防止标签被拉伸 */
+    align-items: flex-start;
+    align-content: flex-start;
+}
