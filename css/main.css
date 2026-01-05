@@ -24,3 +24,6 @@
 
 /* 5. Utilities (Trumps) */
 @import "utilities.css";
+
+/* 6. Responsive */
+@import "layout/responsive.css";

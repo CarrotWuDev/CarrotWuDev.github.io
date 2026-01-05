@@ -217,3 +217,37 @@
 .gallery-item .card-photo-img {
     cursor: zoom-in;
 }
+
+/* ====== 移动端适配 ====== */
+@media (max-width: 767px) {
+
+    /* 画廊导航按钮：增大尺寸，始终可见 */
+    .gallery-nav {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+        opacity: 1;
+    }
+
+    /* 隐藏类优先级保持 */
+    .gallery-nav.hidden {
+        opacity: 0 !important;
+    }
+
+    /* 画廊指示器：调整位置 */
+    .gallery-indicator {
+        top: 8px;
+        right: 8px;
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+
+    /* 照片卡片图片高度调整 */
+    .card-photo-img {
+        height: 180px;
+    }
+
+    .gallery-item .card-photo-img {
+        height: 180px;
+    }
+}

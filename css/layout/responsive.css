@@ -1,0 +1,118 @@
+/* ====== 响应式适配 ====== */
+
+/**
+ * 断点策略 (Mobile First)
+ * - Mobile:  < 768px
+ * - Tablet:  768px - 1023px
+ * - Desktop: >= 1024px
+ */
+
+/* ====== Mobile (<768px) ====== */
+@media (max-width: 767px) {
+
+    /* 整体布局：从 flex 改为 block，恢复正常文档流 */
+    .app {
+        display: block;
+        height: auto;
+        overflow: visible;
+    }
+
+    /* 侧边栏：移至顶部，固定定位 */
+    .sidebar {
+        flex: none;
+        width: 100%;
+        border-right: none;
+        border-bottom: 2px solid var(--line);
+        padding: var(--space-page-mobile);
+        overflow: visible;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        gap: 16px;
+    }
+
+    /* 个人信息区：紧凑布局 */
+    .profile {
+        padding-bottom: 12px;
+    }
+
+    .profile-header {
+        gap: 12px;
+    }
+
+    .avatar {
+        width: 56px;
+        height: 56px;
+    }
+
+    .profile-name {
+        font-size: 18px;
+    }
+
+    .profile-tags {
+        margin-top: 10px;
+    }
+
+    /* 导航：横向滚动 */
+    .type-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 8px;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .type-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .type-nav a {
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    /* 隐藏 slogan/copyright（移动端精简） */
+    .sidebar-footer {
+        display: none;
+    }
+
+    /* 主内容区：自然高度，调整间距 */
+    .main {
+        height: auto;
+        overflow: visible;
+        padding-inline: var(--space-page-mobile);
+    }
+
+    /* 内容区间距调整 */
+    #contentRoot {
+        gap: var(--space-section-mobile);
+        padding-top: var(--space-section-mobile);
+        padding-bottom: 60px;
+    }
+
+    #contentRoot section+section {
+        padding-top: var(--space-section-mobile);
+    }
+}
+
+/* ====== Tablet (768px - 1023px) ====== */
+@media (min-width: 768px) and (max-width: 1023px) {
+
+    /* 侧边栏：收窄宽度 */
+    .sidebar {
+        flex: 0 0 220px;
+        padding: 20px 14px;
+    }
+
+    .avatar {
+        width: 64px;
+        height: 64px;
+    }
+
+    .profile-name {
+        font-size: 18px;
+    }
+}

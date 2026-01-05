@@ -77,3 +77,21 @@
 .out::after {
     content: '→';
 }
+
+/* ====== 移动端适配 ====== */
+@media (max-width: 767px) {
+
+    /* 卡片容器：强制单列 */
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    /* 卡片：调整内边距 */
+    .card {
+        padding: 16px;
+    }
+
+    .card h3 {
+        font-size: 16px;
+    }
+}
