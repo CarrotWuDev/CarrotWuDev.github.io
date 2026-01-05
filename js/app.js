@@ -2,6 +2,7 @@ import { DataService } from './services/data.js';
 import { RenderService } from './ui/render.js';
 import { initTheme } from './ui/theme.js';
 import { initTooltip } from './ui/tooltip.js';
+import { initScrollbarBehavior } from './ui/scroll.js';
 
 /**
  * 应用程序入口
@@ -162,4 +163,5 @@ document.addEventListener('DOMContentLoaded', () => {
     setupAutoHideHeader();
     initTheme();
     initTooltip();
+    initScrollbarBehavior();
 });

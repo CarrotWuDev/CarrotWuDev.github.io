@@ -10,6 +10,8 @@ body {
 
 body {
     margin: 0;
+    overflow: hidden;
+    /* 防止双滚动条：布局滚动由 .main 接管 */
     background: var(--bg);
     /* 依赖 variables.css */
     color: var(--fg);

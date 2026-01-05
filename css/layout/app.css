@@ -134,27 +134,30 @@ nav a[aria-current="true"][data-type="default"] {
     padding-inline: var(--space-page);
 }
 
-/* 滚动条：默认隐藏，悬停/滚动时显示 */
+/* 滚动条：Neo-Brutalism 风格 (直角、实色) */
 .main::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
 }
 
 .main::-webkit-scrollbar-track {
     background: transparent;
 }
 
+/* 滑块：直角、实色 (默认透明，状态触发显示) */
 .main::-webkit-scrollbar-thumb {
     background: transparent;
-    border-radius: 4px;
+    border-radius: 0;
     transition: background 0.3s;
 }
 
-.main:hover::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
+/* 触发显示：仅在正在滚动时 */
+.main[data-scrolling="true"]::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-bg);
 }
 
-.main:hover::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.4);
+/* 交互增强：鼠标悬停在滑块上时 (仅显示，不变色) */
+.main::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-bg) !important;
 }
 
 /* 社交链接 (内嵌在 profile 中的简洁文字链接) */

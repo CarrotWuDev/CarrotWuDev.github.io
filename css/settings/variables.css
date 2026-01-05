@@ -28,6 +28,9 @@
     /* 阴影 */
     --shadow: rgba(15, 23, 42, 0.1);
 
+    /* 滚动条颜色 (中性灰) */
+    --scrollbar-bg: #a3a3a3;
+
     /* 响应式间距（移动端） */
     --space-page-mobile: 16px;
     --space-section-mobile: 32px;
@@ -46,4 +49,7 @@
 
     /* 阴影：改为淡白发光效果（在深色背景上提供层次感） */
     --shadow: rgba(255, 255, 255, 0.15);
+
+    /* 滚动条颜色 (中性深灰) */
+    --scrollbar-bg: #525252;
 }

@@ -9,8 +9,7 @@
  */
 
 /* 读书卡片容器：覆盖默认网格列宽，适配横向布局 */
-/* 使用 section-book 类限定作用域，仅影响读书区块 */
-.section-book .cards {
+.cards:has(.card-book) {
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
 }
 

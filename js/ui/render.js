@@ -206,7 +206,7 @@ export const RenderService = {
                 : `<p class="empty-state">暂无内容</p>`;
 
             return `
-            <section id="${cat.id}" class="section-${cat.type}" aria-labelledby="h-${cat.id}">
+            <section id="${cat.id}" aria-labelledby="h-${cat.id}">
                 <h2 id="h-${cat.id}">${cat.title}</h2>
                 ${content}
             </section>
