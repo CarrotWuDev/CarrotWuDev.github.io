@@ -29,6 +29,13 @@
         top: 0;
         z-index: 100;
         gap: 16px;
+        /* 滚动隐藏过渡动画 */
+        transition: transform 0.3s ease;
+    }
+
+    /* 侧边栏隐藏状态（向下滚动时） */
+    .sidebar.header-hidden {
+        transform: translateY(-100%);
     }
 
     /* 个人信息区：紧凑布局 */

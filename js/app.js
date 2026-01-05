@@ -80,5 +80,80 @@ function setupScrollSpy() {
     sections.forEach(sec => observer.observe(sec));
 }
 
+/**
+ * 移动端顶部导航栏滚动隐藏
+ * - 向下滚动超过阈值：隐藏
+ * - 向上滚动：显示
+ * - 仅在移动端生效 (< 768px)
+ */
+function setupAutoHideHeader() {
+    const sidebar = document.querySelector('.sidebar');
+    if (!sidebar) return;
+
+    // 媒体查询：仅移动端生效
+    const mobileQuery = window.matchMedia('(max-width: 767px)');
+
+    let lastScrollY = 0;
+    let ticking = false;
+
+    // 滚动阈值：超过此值才开始检测
+    const SCROLL_THRESHOLD = 60;
+    // 最小滚动差值：避免微小滚动触发
+    const SCROLL_DELTA = 10;
+
+    /**
+     * 更新侧边栏显示/隐藏状态
+     */
+    function updateHeaderVisibility() {
+        // 非移动端不处理
+        if (!mobileQuery.matches) {
+            sidebar.classList.remove('header-hidden');
+            return;
+        }
+
+        const currentScrollY = window.scrollY;
+        const scrollDelta = currentScrollY - lastScrollY;
+
+        // 未超过阈值：始终显示
+        if (currentScrollY <= SCROLL_THRESHOLD) {
+            sidebar.classList.remove('header-hidden');
+        }
+        // 向下滚动超过最小差值：隐藏
+        else if (scrollDelta > SCROLL_DELTA) {
+            sidebar.classList.add('header-hidden');
+        }
+        // 向上滚动超过最小差值：显示
+        else if (scrollDelta < -SCROLL_DELTA) {
+            sidebar.classList.remove('header-hidden');
+        }
+
+        lastScrollY = currentScrollY;
+        ticking = false;
+    }
+
+    /**
+     * 滚动事件处理（使用 requestAnimationFrame 节流）
+     */
+    function onScroll() {
+        if (!ticking) {
+            window.requestAnimationFrame(updateHeaderVisibility);
+            ticking = true;
+        }
+    }
+
+    // 监听滚动事件
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // 监听窗口大小变化：非移动端时移除隐藏状态
+    mobileQuery.addEventListener('change', (e) => {
+        if (!e.matches) {
+            sidebar.classList.remove('header-hidden');
+        }
+    });
+}
+
 // 启动
 init();
+
+// 初始化移动端滚动隐藏（在 DOM 加载后执行）
+document.addEventListener('DOMContentLoaded', setupAutoHideHeader);
