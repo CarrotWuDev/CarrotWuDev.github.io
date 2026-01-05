@@ -1,0 +1,51 @@
+/* ====== JavaScript Tooltip 样式 ====== */
+
+/**
+ * Tooltip 挂载到 body 上，使用固定定位
+ * Neo-Brutalism 风格：实心边框、硬阴影、无圆角
+ */
+
+.tooltip {
+    position: absolute;
+    z-index: 9999;
+
+    /* 样式：Neo-Brutalism 风格 */
+    background: var(--bg);
+    color: var(--fg);
+    border: 2px solid var(--line);
+    padding: 8px 12px;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.4;
+    box-shadow: 2px 2px 0 var(--shadow);
+
+    /* 限制宽度，允许换行 */
+    max-width: 280px;
+    white-space: normal;
+    word-wrap: break-word;
+    text-align: left;
+
+    /* 初始状态：隐藏 */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    /* 过渡动画 */
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+/* 可见状态 */
+.tooltip.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ====== 移动端适配 ====== */
+@media (max-width: 767px) {
+
+    /* 移动端隐藏 Tooltip（触摸设备无法悬停） */
+    .tooltip {
+        display: none !important;
+    }
+}

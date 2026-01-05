@@ -9,7 +9,8 @@
  */
 
 /* 读书卡片容器：覆盖默认网格列宽，适配横向布局 */
-.cards:has(.card-book) {
+/* 使用 section-book 类限定作用域，仅影响读书区块 */
+.section-book .cards {
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
 }
 
@@ -76,6 +77,10 @@
     justify-content: space-between;
     gap: 12px;
     padding-top: 16px;
+
+    /* 确保 flex 容器正确处理溢出 */
+    min-width: 0;
+    overflow: hidden;
 }
 
 .card-book .card-header h3 {
@@ -102,6 +107,11 @@
     display: flex;
     align-items: center;
     gap: 4px;
+
+    /* 元信息过长时省略 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* 第3行：标签区域（由 subgrid 行轨道决定高度） */

@@ -34,10 +34,13 @@
 .card-photo h3 {
     margin-top: 16px;
     margin-bottom: 8px;
-    white-space: normal;
-    /* Allow wrap */
     grid-row: 2;
     /* 显式指定行：第2行 (标题) */
+
+    /* 标题过长时省略 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .photo-meta {
@@ -49,6 +52,11 @@
     gap: 4px;
     grid-row: 3;
     /* 显式指定行：第3行 (Meta) */
+
+    /* 元信息过长时省略 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* ====== 照片图集 (Gallery) ====== */
@@ -152,6 +160,11 @@
     color: var(--fg);
     letter-spacing: .4px;
     /* 统一字间距 */
+
+    /* 标题过长时省略 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* 导航按钮 (Prev/Next) */

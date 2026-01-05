@@ -15,6 +15,7 @@
 @import "components/tags.css";
 @import "components/status.css";
 @import "components/lightbox.css";
+@import "components/tooltip.css";
 
 /* Specific Cards */
 @import "components/card-project.css";

@@ -20,13 +20,17 @@
 
 .card-project p {
     line-height: 1.5;
-    height: 4.5em;
-    /* Fallback height */
     margin-bottom: 16px;
-    overflow: hidden;
     grid-row: 5;
     /* 显式指定行：第5行 (描述作为主要内容) */
     align-self: start;
+
+    /* 描述文本固定 3 行，超出省略 */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .card-project .tech-tags {

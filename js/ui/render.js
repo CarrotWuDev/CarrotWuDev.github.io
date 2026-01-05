@@ -206,7 +206,7 @@ export const RenderService = {
                 : `<p class="empty-state">暂无内容</p>`;
 
             return `
-            <section id="${cat.id}" aria-labelledby="h-${cat.id}">
+            <section id="${cat.id}" class="section-${cat.type}" aria-labelledby="h-${cat.id}">
                 <h2 id="h-${cat.id}">${cat.title}</h2>
                 ${content}
             </section>
@@ -232,7 +232,7 @@ export const RenderService = {
     renderHeader(title, status) {
         return `
         <div class="card-header">
-            <h3>${title || '未命名'}</h3>
+            <h3 data-tooltip="${title || ''}">${title || '未命名'}</h3>
             ${status ? `<span class="status" data-status="${status}">${status}</span>` : ''}
         </div>`;
     },
@@ -253,7 +253,7 @@ export const RenderService = {
         return `
         <div class="card card-project">
             ${this.renderHeader(it.title, it.status)}
-            ${it.desc ? `<p class="line-clamp-3">${it.desc}</p>` : ''}
+            ${it.desc ? `<p data-tooltip="${it.desc}">${it.desc}</p>` : ''}
             ${this.renderTags(it.tech, 'tech-tags')}
             ${this.renderFooterLink(it.linkUrl, it.linkText)}
         </div>`;
@@ -269,9 +269,9 @@ export const RenderService = {
         <div class="card card-book ${it.cover ? 'has-cover' : ''}">
             ${it.cover ? `<img class="book-cover" src="${it.cover}" loading="lazy" alt="${it.title} 封面">` : ''}
             ${this.renderHeader(it.title, it.status)}
-            <div class="book-meta">${meta || '&nbsp;'}</div>
+            <div class="book-meta" data-tooltip="${[it.author, it.publishYear].filter(Boolean).join(' • ')}">${meta || '&nbsp;'}</div>
             ${this.renderTags(it.tags, 'book-tags')}
-            ${it.review ? `<div class="book-review"><p>${it.review}</p></div>` : '<div class="book-review">&nbsp;</div>'}
+            ${it.review ? `<div class="book-review"><p data-tooltip="${it.review}">${it.review}</p></div>` : '<div class="book-review">&nbsp;</div>'}
             ${this.renderFooterLink(it.linkUrl, it.linkText)}
         </div>`;
     },
@@ -282,12 +282,12 @@ export const RenderService = {
         <div class="card card-game ${it.cover ? 'has-cover' : ''}">
             ${it.cover ? `<img class="card-cover" src="${it.cover}" loading="lazy" alt="封面">` : ''}
             ${this.renderHeader(it.title, it.status)}
-            <div class="card-subtitle">${meta || '&nbsp;'}</div>
+            <div class="game-meta" data-tooltip="${[it.dev, it.platform, it.releaseDate].filter(Boolean).join(' • ')}">${meta || '&nbsp;'}</div>
             
             ${this.renderTags(it.tags || it.gameType, 'game-tags')}
             
             ${it.review ? `
-                <div class="review"><p class="line-clamp-2">${it.review}</p></div>
+                <div class="review"><p data-tooltip="${it.review}">${it.review}</p></div>
             ` : ''}
             
             ${this.renderFooterLink(it.linkUrl, it.linkText)}
@@ -306,8 +306,8 @@ export const RenderService = {
                      data-src="${it.photoUrl}"
                      data-caption="${it.title}">
             ` : ''}
-            <h3>${it.title || '未命名'}</h3>
-            ${meta ? `<p class="photo-meta">${meta}</p>` : ''}
+            <h3 data-tooltip="${it.title || ''}">${it.title || '未命名'}</h3>
+            ${meta ? `<p class="photo-meta" data-tooltip="${[it.photoLocation, it.photoDate].filter(Boolean).join(' • ')}">${meta}</p>` : ''}
         </div>`;
     },
 
@@ -322,8 +322,8 @@ export const RenderService = {
                          data-caption="${p.title}">
                 ` : ''}
                 <div class="gallery-info">
-                    <h4>${p.title || '图集'}</h4>
-                    ${(p.photoLocation || p.photoDate) ? `<p class="photo-meta">${[p.photoLocation, p.photoDate].filter(Boolean).join(' &bull; ')}</p>` : ''}
+                    <h4 data-tooltip="${p.title || ''}">${p.title || '图集'}</h4>
+                    ${(p.photoLocation || p.photoDate) ? `<p class="photo-meta" data-tooltip="${[p.photoLocation, p.photoDate].filter(Boolean).join(' • ')}">${[p.photoLocation, p.photoDate].filter(Boolean).join(' &bull; ')}</p>` : ''}
                 </div>
             </div>
         `).join('');
@@ -331,7 +331,7 @@ export const RenderService = {
         return `
         <div class="card card-photo is-gallery" data-gallery-id="${slugify(it.title)}">
             <div class="card-header">
-                <h3>${it.title}</h3>
+                <h3 data-tooltip="${it.title}">${it.title}</h3>
                 <span class="status">图集</span>
             </div>
             <div class="gallery-wrapper">
@@ -349,7 +349,7 @@ export const RenderService = {
         return `
         <div class="card card-${type}">
             ${this.renderHeader(it.title, it.status)}
-            ${it.desc ? `<p>${it.desc}</p>` : ''}
+            ${it.desc ? `<p data-tooltip="${it.desc}">${it.desc}</p>` : ''}
             ${this.renderFooterLink(it.linkUrl, it.linkText)}
         </div>`;
     }
