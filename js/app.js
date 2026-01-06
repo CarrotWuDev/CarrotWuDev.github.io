@@ -32,6 +32,7 @@ async function init() {
  */
 function setupScrollSpy() {
     const main = document.getElementById('main');
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
 
     // 我们需要动态获取 navLinks 和 sections，因为它们是渲染出来的
     // 使用闭包或实时查询
@@ -56,38 +57,56 @@ function setupScrollSpy() {
         isClickScrolling = true;
         highlight(e.detail.id);
 
-        // 手动滚动到目标 section（替代被阻止的浏览器默认锚点行为）
-        // @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
+        // 手动滚动到目标 section
+        // 移动端需考虑 Sticky Nav 的遮挡偏移 (约54px)
         const targetSection = document.getElementById(e.detail.id);
         if (targetSection) {
-            targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const offset = isMobile ? 60 : 0; // Mobile Sticky Nav height comp
+
+            if (isMobile) {
+                const elementPosition = targetSection.getBoundingClientRect().top + window.scrollY;
+                const offsetPosition = elementPosition - offset;
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
+            } else {
+                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         if (scrollTimeout) clearTimeout(scrollTimeout);
     });
 
     // 2. 监听滚动解除锁定
-    main.addEventListener('scroll', () => {
+    // 移动端滚动的是 window，桌面端滚动的是 main
+    const scrollContainer = isMobile ? window : main;
+
+    scrollContainer.addEventListener('scroll', () => {
         if (!isClickScrolling) return;
         if (scrollTimeout) clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => isClickScrolling = false, 100);
     }, { passive: true });
 
     // 3. IntersectionObserver
+    // 移动端视口为 null (Browser Viewport)，桌面端为 main
     const observer = new IntersectionObserver((entries) => {
         if (isClickScrolling) return;
         entries.forEach(entry => {
             if (entry.isIntersecting) highlight(entry.target.id);
         });
     }, {
-        root: main,
+        root: isMobile ? null : main,
         rootMargin: '-50% 0px -50% 0px', // 中心线检测
         threshold: 0
     });
 
     // 观察所有 section
-    const sections = document.querySelectorAll('#contentRoot section');
-    sections.forEach(sec => observer.observe(sec));
+    // 稍作延迟以确保 DOM 渲染完成
+    setTimeout(() => {
+        const sections = document.querySelectorAll('#contentRoot section');
+        sections.forEach(sec => observer.observe(sec));
+    }, 100);
 }
 
 /**
@@ -112,35 +131,29 @@ function setupAutoHideHeader() {
     const SCROLL_DELTA = 10;
 
     /**
-     * 更新导航栏显示/隐藏状态
-     * 仅控制 .type-nav，不再控制整个 sidebar
+     * 更新侧边栏显示/隐藏状态
      */
     function updateHeaderVisibility() {
         // 非移动端不处理
-        // 注意：此处需要确保只获取 nav 元素
-        const nav = document.querySelector('.type-nav');
-        if (!nav || !mobileQuery.matches) {
-            if (nav) nav.classList.remove('nav-hidden');
+        if (!mobileQuery.matches) {
+            sidebar.classList.remove('header-hidden');
             return;
         }
 
         const currentScrollY = window.scrollY;
         const scrollDelta = currentScrollY - lastScrollY;
 
-        // 阈值设为 profile 的大致高度，避免一开始就隐藏
-        const HIDE_THRESHOLD = 150;
-
-        // 1. 未超过阈值（还在看个人简介）：始终显示
-        if (currentScrollY <= HIDE_THRESHOLD) {
-            nav.classList.remove('nav-hidden');
+        // 未超过阈值：始终显示
+        if (currentScrollY <= SCROLL_THRESHOLD) {
+            sidebar.classList.remove('header-hidden');
         }
-        // 2. 向下滚动：隐藏
+        // 向下滚动超过最小差值：隐藏
         else if (scrollDelta > SCROLL_DELTA) {
-            nav.classList.add('nav-hidden');
+            sidebar.classList.add('header-hidden');
         }
-        // 3. 向上滚动：显示
+        // 向上滚动超过最小差值：显示
         else if (scrollDelta < -SCROLL_DELTA) {
-            nav.classList.remove('nav-hidden');
+            sidebar.classList.remove('header-hidden');
         }
 
         lastScrollY = currentScrollY;

@@ -5,7 +5,12 @@
     overflow: hidden;
 }
 
-.sidebar {
+/* 
+ * [Desktop Layout]
+ * 新增 Wrapper 替代原本的 .sidebar 成为 Flex 容器的左列。
+ * 它负责宽度、背景、边框和内部布局。
+ */
+.sidebar-wrapper {
     flex: 0 0 280px;
     border-right: 2px solid var(--line);
     padding: 24px 18px;
@@ -15,6 +20,75 @@
     overflow: hidden;
     background: var(--bg);
 }
+
+/* 
+ * .sidebar 现在仅作为 Profile 的容器 (HTML改动后)。
+ * 在 Desktop 端，它不再负责 Width/Flex 属性，只负责内部 Profile 内容。
+ */
+.sidebar {
+    /* Reset old styles */
+    flex: none;
+    border: none;
+    padding: 0;
+    width: 100%;
+    background: transparent;
+    overflow: visible;
+}
+
+/* 
+ * [Structure Re-integration]
+ * 桌面端将分离出去的 .type-nav 视觉上“放回”侧边栏。
+ * 方法：
+ * 1. .app 保持 flex row。
+ * 2. .sidebar (profile) 和 .type-nav (nav) 都是 .app 的子元素。
+ * 3. 我们需要把它们垂直堆叠在左侧。
+ * 
+ * 解决方案：将 .sidebar 和 .type-nav 包裹在一个虚拟的 Flex 列中？
+ * 不，HTML 结构已变：
+ * .app > .sidebar (profile only now)
+ * .app > .type-nav
+ * .app > .main
+ * 
+ * 修正方案：
+ * 让 .app 变成 Grid 布局可能更直接，或者使用嵌套 Flex。
+ * 但为了不改动太多，最简单的办法是：HTML 结构上 .sidebar 只包含 user profile。
+ * 我们可以让 .sidebar 和 .type-nav 都设置为固定宽度的 Flex Item？
+ * 不行，这样它们会横排。
+ * 
+ * 正确的桌面端 CSS 适配：
+ * 我们需要把 "左侧栏"定义为一个区域。
+ * 鉴于 HTML 已经拆分，桌面端我们可以用一个 position: fixed 的容器？
+ * 或者：
+ * .app { display: grid; grid-template-columns: 280px 1fr; }
+ * .sidebar { grid-column: 1; }
+ * .type-nav { grid-column: 1; align-self: start; margin-top: [ProfileHeight]; } <-- 很难算。
+ * 
+ * 回退一步：
+ * 最稳妥的方式其实是把 .sidebar 和 .type-nav 包裹在一个 <aside class="sidebar-wrapper"> 中。
+ * 但你已经同意修改 HTML。
+ * 不如我们在 display: contents 上做文章？
+ * 
+ * 最终方案 (Desktop):
+ * 把 .sidebar (旧) 重命名为 .sidebar-profile。
+ * 并在 HTML 中引入一个新的 wrapper 叫 .sidebar-column 包含 profile 和 nav?
+ * 
+ * 等等，我们之前的 HTML 修改是把 .type-nav 变成了 .app 的直接子元素。
+ * .app (Flex)
+ *   -> .sidebar (Flex Item 1)
+ *   -> .type-nav (Flex Item 2)
+ *   -> .main (Flex Item 3)
+ * 这样它们会并排显示：[Sidebar] [Nav] [Main]。这在桌面端是错的。
+ * 
+ * 必须修正 HTML 结构：
+ * <aside class="sidebar-container">  <-- New Wrapper
+ *    <div class="user-profile">...</div>
+ *    <nav class="type-nav">...</nav>
+ *    <footer>...</footer>
+ * </aside>
+ * 
+ * 这样 Sidebar 容器依然是 Flex Item，内部垂直排列。
+ * Mobile 端：取消 .sidebar-container 的 Flex/Sticky，让内部元素自由流。
+ */
 
 /* 个人信息区 */
 .profile {
