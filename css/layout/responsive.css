@@ -10,6 +10,12 @@
 /* ====== Mobile (<768px) ====== */
 @media (max-width: 767px) {
 
+    /* 修复移动端无法滚动的问题：重置 body overflow */
+    body {
+        overflow: auto;
+        height: auto;
+    }
+
     /* 整体布局：从 flex 改为 block，恢复正常文档流 */
     .app {
         display: block;
