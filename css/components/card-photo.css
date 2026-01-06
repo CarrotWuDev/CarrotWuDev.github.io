@@ -99,8 +99,25 @@
     margin: 0;
 }
 
-.card-photo.is-gallery .card-header .status {
+/* 图集专属标签 (Icon Only) */
+.gallery-tag {
+    color: var(--muted);
+    background: transparent;
     margin: 0;
+    padding: 0;
+    border: none;
+    line-height: 0;
+    /* 消除行高对 SVG 的影响 */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    /* 默认光标，依靠 Tooltip 提供解释 */
+    transition: color 0.15s;
+}
+
+.gallery-tag:hover {
+    color: var(--fg);
 }
 
 /* 包装器：用于定位悬浮元素 */

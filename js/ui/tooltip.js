@@ -36,8 +36,13 @@ function handleMouseEnter(e) {
     const content = target.getAttribute('data-tooltip');
     if (!content || content.trim() === '') return;
 
-    // 检测文本是否实际被截断
-    if (!isTextTruncated(target)) return;
+    // 逻辑修正：
+    // 1. 对于一般的文本类元素 (h3, p, .status)，我们只在文本被截断时显示 tooltip
+    // 2. 对于显式的图标/按钮类元素 (如 .gallery-tag)，我们要强制显示 tooltip，不需要截断检测
+    // 3. 通用支持：如果有 data-force-tooltip 属性，也强制显示
+    const shouldForceShow = target.classList.contains('gallery-tag') || target.hasAttribute('data-force-tooltip');
+
+    if (!shouldForceShow && !isTextTruncated(target)) return;
 
     // 清除隐藏延时
     if (hideTimeout) {

@@ -144,18 +144,23 @@ export const Parser = {
             }
 
             // --- Fields ---
-            const order = parseField(trimmed, '展示序号');
+            // Support both '展示序号' (legacy) and '序号' (new local index)
+            const order = parseField(trimmed, '展示序号') || parseField(trimmed, '序号');
             if (order) {
-                // Supports "1", "1.1", "1-1" etc.
-                // For gallery sub-items (like 1-1, 1-2), we might just want to sort by string or convert.
-                // Let's keep it simple: string for sub-items? Or smart compare?
-                // The user uses "1-1", "1-2". Standard generic sort is safest.
+                // For gallery sub-items, this effectively becomes a local index (e.g., "1", "2")
                 target.order = order;
                 continue;
             }
 
             const quantity = parseField(trimmed, '数量');
-            if (quantity === '图集') { currentItem.isSet = true; continue; }
+            if (quantity) {
+                const count = parseInt(quantity, 10);
+                // 数量大于1视为图集
+                if (!isNaN(count) && count > 1) {
+                    currentItem.isSet = true;
+                    continue;
+                }
+            }
 
             const desc = parseField(trimmed, '描述');
             if (desc) { target.desc = desc; continue; }

@@ -332,7 +332,12 @@ export const RenderService = {
         <div class="card card-photo is-gallery" data-gallery-id="${slugify(it.title)}">
             <div class="card-header">
                 <h3 data-tooltip="${it.title}">${it.title}</h3>
-                <span class="status">图集</span>
+                <span class="gallery-tag" data-tooltip="图集">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                </span>
             </div>
             <div class="gallery-wrapper">
                 <div class="gallery-indicator">1 / ${it.photos.length}</div>
