@@ -24,30 +24,69 @@
     }
 
     /* 侧边栏：移至顶部，固定定位 */
+    /* 
+     * [Layout Change] SideBar 解绑 Sticky
+     * 侧边栏不再作为整体固定在顶部。
+     * 头像、简介等内容随页面滚动自然划走。
+     */
     .sidebar {
         flex: none;
         width: 100%;
         border-right: none;
         border-bottom: 2px solid var(--line);
-        padding: var(--space-page-mobile);
+        padding: 0;
+        /* 去除内边距，交给子元素控制，以便 Nav 贴边 */
         overflow: visible;
-        position: sticky;
-        top: 0;
+        position: relative;
+        /* 回归相对定位 */
         z-index: 100;
-        gap: 16px;
-        /* 滚动隐藏过渡动画 */
-        transition: transform 0.3s ease;
+        gap: 0;
+        display: block;
+        /* 取消 Flex gap */
     }
 
-    /* 侧边栏隐藏状态（向下滚动时） */
-    .sidebar.header-hidden {
+    /* 个人信息区：正常文档流，有内边距 */
+    .profile {
+        padding: var(--space-page-mobile);
+        padding-bottom: 12px;
+        background: var(--bg);
+        margin-bottom: 0;
+        border-bottom: none;
+    }
+
+    /* 
+     * [Sticky Nav] 仅导航栏固定
+     * 实现 Scroll-to-Hide/Show 的核心容器
+     */
+    .type-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 8px;
+        padding: 10px var(--space-page-mobile);
+        /* 上下内边距 */
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+
+        /* Sticky 设置 */
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        background: var(--bg);
+        /* 背景色遮挡内容 */
+        border-bottom: 2px solid var(--line);
+        border-top: 2px solid var(--line);
+        /* 增加顶部分割线 */
+        transition: transform 0.3s ease;
+        /* 显隐动画 */
+    }
+
+    /* 导航栏隐藏状态（向下滚动时） (由 JS 控制 .nav-hidden 类) */
+    .type-nav.nav-hidden {
         transform: translateY(-100%);
     }
 
-    /* 个人信息区：紧凑布局 */
-    .profile {
-        padding-bottom: 12px;
-    }
+    /* 移除旧的 sidebar 隐藏样式 */
+    /* .sidebar.header-hidden { transform: translateY(-100%); } */
 
     .profile-header {
         gap: 12px;
@@ -64,17 +103,17 @@
 
     .profile-tags {
         margin-top: 10px;
+        /* 
+         * 标签稍微小一点，避免在移动端占太多位置
+         */
     }
 
-    /* 导航：横向滚动 */
-    .type-nav {
-        flex-direction: row;
-        overflow-x: auto;
-        gap: 8px;
-        padding-bottom: 4px;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
+    .profile-tags .tag {
+        font-size: 11px;
+        padding: 2px 6px;
     }
+
+    /* .type-nav 样式已合并到上方 Sticky 规则中 */
 
     .type-nav::-webkit-scrollbar {
         display: none;

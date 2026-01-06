@@ -112,29 +112,35 @@ function setupAutoHideHeader() {
     const SCROLL_DELTA = 10;
 
     /**
-     * 更新侧边栏显示/隐藏状态
+     * 更新导航栏显示/隐藏状态
+     * 仅控制 .type-nav，不再控制整个 sidebar
      */
     function updateHeaderVisibility() {
         // 非移动端不处理
-        if (!mobileQuery.matches) {
-            sidebar.classList.remove('header-hidden');
+        // 注意：此处需要确保只获取 nav 元素
+        const nav = document.querySelector('.type-nav');
+        if (!nav || !mobileQuery.matches) {
+            if (nav) nav.classList.remove('nav-hidden');
             return;
         }
 
         const currentScrollY = window.scrollY;
         const scrollDelta = currentScrollY - lastScrollY;
 
-        // 未超过阈值：始终显示
-        if (currentScrollY <= SCROLL_THRESHOLD) {
-            sidebar.classList.remove('header-hidden');
+        // 阈值设为 profile 的大致高度，避免一开始就隐藏
+        const HIDE_THRESHOLD = 150;
+
+        // 1. 未超过阈值（还在看个人简介）：始终显示
+        if (currentScrollY <= HIDE_THRESHOLD) {
+            nav.classList.remove('nav-hidden');
         }
-        // 向下滚动超过最小差值：隐藏
+        // 2. 向下滚动：隐藏
         else if (scrollDelta > SCROLL_DELTA) {
-            sidebar.classList.add('header-hidden');
+            nav.classList.add('nav-hidden');
         }
-        // 向上滚动超过最小差值：显示
+        // 3. 向上滚动：显示
         else if (scrollDelta < -SCROLL_DELTA) {
-            sidebar.classList.remove('header-hidden');
+            nav.classList.remove('nav-hidden');
         }
 
         lastScrollY = currentScrollY;
