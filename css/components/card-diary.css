@@ -1,0 +1,254 @@
+/* ====== 日记卡片 (Diary Card) - 时间线布局 ====== */
+
+/**
+ * 设计规范 (Neo-Brutalism):
+ * 1. 布局：左侧时间线 (Timeline) + 右侧内容卡片 (Card)
+ * 2. 交互：悬停时高亮圆点、文字及边框
+ * 3. 对齐：圆点与日期/标题行垂直对齐 (Baseline Alignment)
+ */
+
+/* --- 容器布局 (Timeline Layout) --- */
+
+.cards:has(.card-diary) {
+    /* 核心变量定义 (Single Source of Truth) */
+    --timeline-gutter: 24px;
+    /* 时间线区域宽度 */
+    --card-border-width: 2px;
+    /* 卡片边框宽度 (用于修正定位偏差) */
+
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    /* 时间线连续，无卡片间距 */
+    position: relative;
+    padding-left: var(--timeline-gutter);
+}
+
+/* 时间线垂直线 (Vertical Line) */
+.cards:has(.card-diary)::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--line);
+    border-radius: 1.5px;
+
+    /* 
+     * 水平对齐逻辑 (Left Alignment):
+     * 目标：黑线左边缘与上方标题 (H2) 左边缘对齐 (Left: 0)
+     * 取消之前的居中逻辑，直接贴左边。
+     */
+    left: 0;
+    /* transform: translateX(-50%);  <-- 移除，不再需要居中 */
+}
+
+/* --- 卡片组件 (Card Component) --- */
+
+.card-diary {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    min-width: 0;
+
+    /* 悬停交互 */
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-diary:hover {
+    border-color: var(--accent-diary);
+    box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-diary), transparent 40%);
+}
+
+/* --- 时间线标记 (Timeline Marker) --- */
+
+.timeline-marker {
+    position: absolute;
+    z-index: 1;
+    width: 12px;
+    height: 12px;
+    background: var(--bg);
+    border: 3px solid var(--line);
+    border-radius: 50%;
+
+    /* 
+     * 水平对齐: 
+     * 目标：圆点中心对齐黑线中心。
+     * 线宽 3px -> 中心 1.5px
+     * 此元素相对定位基准是 .card-diary (Padding Box)，且受 Border 影响。
+     * 
+     * 公式推导：
+     * 1. 目标位置（相对于容器）：1.5px
+     * 2. 当前原点（相对于容器）：Padding (24px) + Border (2px) = 26px
+     * 3. 需要向左移动：26px - 1.5px = 24.5px
+     * 4. 考虑到 transform(-50%) 会让圆点左移半径 (6px)。
+     *    最终 left 设为 1.5px 处对应的偏移量。
+     * 
+     * 简化写法：
+     * left: calc( -1 * (Padding + Border - LineCenter) )
+     * left: calc( -1 * (var(--timeline-gutter) + var(--card-border-width) - 1.5px) )
+     */
+    left: calc(-1 * (var(--timeline-gutter) + var(--card-border-width) - 1.5px));
+    transform: translateX(-50%);
+
+    /* 
+     * 垂直对齐: 
+     * 对齐头部文字中心线 (Padding 20px + Emoji 12px - Marker 6px = 26px)
+     */
+    top: 26px;
+
+    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+/* 标记悬停效果 */
+.card-diary:hover .timeline-marker {
+    border-color: var(--accent-diary);
+    background: var(--bg);
+    /* 保持空心效果 */
+    transform: translateX(-50%) scale(1.2);
+}
+
+/* --- 内容区域 (Content Sections) --- */
+
+/* 头部 (Header) */
+.diary-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.diary-mood {
+    font-size: 24px;
+    line-height: 1;
+}
+
+.diary-date {
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0.4px;
+    color: var(--fg);
+    transition: color 0.15s ease;
+}
+
+.card-diary:hover .diary-date {
+    color: var(--accent-diary);
+}
+
+/* 天气标签 */
+.diary-weather {
+    font-size: 13px;
+    color: var(--muted);
+    padding: 4px 10px;
+    background: var(--bg-subtle);
+    border: 2px solid var(--line);
+    border-radius: 4px;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.card-diary:hover .diary-weather {
+    border-color: var(--accent-diary);
+    color: var(--accent-diary);
+}
+
+/* 正文 (Content) */
+.diary-content {
+    background: var(--bg-subtle);
+    padding: 16px;
+    border-left: 3px solid var(--line);
+    transition: border-color 0.15s ease;
+}
+
+.diary-content p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--fg);
+}
+
+.card-diary:hover .diary-content {
+    border-left-color: var(--accent-diary);
+}
+
+/* 配图 (Image) */
+.diary-image {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border: 3px solid var(--line);
+    cursor: pointer;
+    filter: grayscale(100%);
+    transition: filter 0.3s ease, transform 0.3s ease, border-color 0.15s ease;
+}
+
+.card-diary:hover .diary-image {
+    filter: grayscale(0);
+    border-color: var(--accent-diary);
+}
+
+.diary-image:hover {
+    transform: scale(1.01);
+}
+
+/* --- 移动端适配 (Responsive) --- */
+
+@media (max-width: 767px) {
+
+    /* 重写变量以自动调整布局 */
+    .cards:has(.card-diary) {
+        --timeline-gutter: 20px;
+    }
+
+    /* 样式微调 */
+    .cards:has(.card-diary)::before {
+        width: 2px;
+    }
+
+    .timeline-marker {
+        width: 10px;
+        height: 10px;
+        border-width: 2px;
+
+        /* 
+         * 移动端水平对齐重算:
+         * Padding (20px) + Border (2px) - LineCenter (1px) = 21px
+         * Left = -21px
+         */
+        left: calc(-1 * (var(--timeline-gutter) + var(--card-border-width) - 1px));
+
+        /* 移动端垂直对齐修正 (16px + 10px - 5px = 21px) */
+        top: 21px;
+    }
+
+    .card-diary {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .diary-header {
+        gap: 8px;
+    }
+
+    .diary-mood {
+        font-size: 20px;
+    }
+
+    .diary-date {
+        font-size: 16px;
+    }
+
+    .diary-content {
+        padding: 12px;
+    }
+
+    .diary-content p {
+        font-size: 13px;
+    }
+
+    .diary-image {
+        max-height: 200px;
+    }
+}

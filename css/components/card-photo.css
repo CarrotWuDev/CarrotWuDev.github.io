@@ -4,6 +4,18 @@
     padding: 0;
     padding-bottom: 16px;
     overflow: hidden;
+
+    /* 
+     * [Layout Reset]
+     * 脱离 .card 定义的 6 行 Subgrid 系统。
+     * 照片卡片内容简单，不需要强制对齐每一行轨道，
+     * 使用 Flex Column 实现自然的高度自适应，避免空轨道 (1fr) 撑高卡片。
+     */
+    grid-row: auto;
+    grid-template-rows: none;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 /* 照片卡片悬停效果 */
@@ -18,8 +30,12 @@
     height: 200px;
     object-fit: cover;
     transition: transform 0.3s ease;
-    grid-row: 1;
-    /* 显式指定行：第1行 (封面) */
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    /* 移除 grid-row: 1，因为容器已改为 Flex */
+    /* grid-row: 1; */
 }
 
 .card-photo:hover .card-photo-img {
@@ -34,8 +50,10 @@
 .card-photo h3 {
     margin-top: 16px;
     margin-bottom: 8px;
-    grid-row: 2;
-    /* 显式指定行：第2行 (标题) */
+    margin-top: 16px;
+    margin-bottom: 8px;
+    /* 移除 grid-row: 2，因为容器已改为 Flex */
+    /* grid-row: 2; */
 
     /* 标题过长时省略 */
     white-space: nowrap;
@@ -56,8 +74,12 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    grid-row: 3;
-    /* 显式指定行：第3行 (Meta) */
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    /* 移除 grid-row: 3，因为容器已改为 Flex */
+    /* grid-row: 3; */
 
     /* 元信息过长时省略 */
     white-space: nowrap;

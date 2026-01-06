@@ -203,6 +203,27 @@ export const Parser = {
             const pDate = parseField(trimmed, '拍摄日期');
             if (pDate) { target.photoDate = pDate; continue; }
 
+            // Diary fields
+            const weather = parseField(trimmed, '天气');
+            if (weather) { target.weather = weather; continue; }
+
+            const mood = parseField(trimmed, '心情');
+            if (mood) { target.mood = mood; continue; }
+
+            const diaryContent = parseField(trimmed, '内容');
+            if (diaryContent) { target.content = diaryContent; continue; }
+
+            const diaryImage = parseField(trimmed, '配图');
+            if (diaryImage) {
+                const m = diaryImage.match(/^!\[.*?\]\((.+?)\)$/);
+                if (m) {
+                    let url = m[1];
+                    if (url.startsWith('../')) url = url.substring(3);
+                    target.image = url;
+                }
+                continue;
+            }
+
             // Images
             // Images
             const coverRaw = parseField(trimmed, '封面') || parseField(trimmed, 'Cover');

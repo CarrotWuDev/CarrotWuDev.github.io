@@ -56,6 +56,13 @@ function setupScrollSpy() {
         isClickScrolling = true;
         highlight(e.detail.id);
 
+        // 手动滚动到目标 section（替代被阻止的浏览器默认锚点行为）
+        // @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView
+        const targetSection = document.getElementById(e.detail.id);
+        if (targetSection) {
+            targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         if (scrollTimeout) clearTimeout(scrollTimeout);
     });
 

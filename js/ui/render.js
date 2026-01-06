@@ -8,7 +8,8 @@ const TYPE_REGISTRY = {
     project: { hasStaticCSS: true },
     game: { hasStaticCSS: true },
     photo: { hasStaticCSS: true },
-    book: { hasStaticCSS: true }
+    book: { hasStaticCSS: true },
+    diary: { hasStaticCSS: true }
 };
 
 export const RenderService = {
@@ -30,8 +31,11 @@ export const RenderService = {
             }
 
             // B. Type Nav (ScrollSpy Integration)
+            // 阻止浏览器默认锚点行为，由自定义滚动逻辑接管
+            // @see SPA navigation best practice: https://developer.mozilla.org/en-US/docs/Web/API/Event/preventDefault
             const navLink = e.target.closest('.type-nav a');
             if (navLink) {
+                e.preventDefault();
                 const event = new CustomEvent('nav-click', { detail: { id: navLink.dataset.target } });
                 document.dispatchEvent(event);
                 return;
@@ -223,6 +227,7 @@ export const RenderService = {
             case 'game': return this.cardGame(item);
             case 'photo': return this.cardPhoto(item);
             case 'book': return this.cardBook(item);
+            case 'diary': return this.cardDiary(item);
             default: return this.cardDefault(item, type);
         }
     },
@@ -348,6 +353,50 @@ export const RenderService = {
                 </div>
             </div>
         </div>`;
+    },
+
+    /**
+     * 日记卡片 - 时间线布局
+     */
+    cardDiary(it) {
+        // 解析日期并添加星期
+        const dateWithWeekday = this.formatDateWithWeekday(it.title);
+
+        return `
+        <article class="card card-diary">
+            <div class="timeline-marker"></div>
+            <div class="diary-header">
+                ${it.mood ? `<span class="diary-mood">${it.mood}</span>` : ''}
+                <time class="diary-date">${dateWithWeekday}</time>
+                ${it.weather ? `<span class="diary-weather">${it.weather}</span>` : ''}
+            </div>
+            ${it.content ? `<div class="diary-content"><p>${it.content}</p></div>` : ''}
+            ${it.image ? `
+                <img class="diary-image lightbox-trigger" 
+                     src="${it.image}" 
+                     loading="lazy" 
+                     alt="日记配图"
+                     data-src="${it.image}"
+                     data-caption="${dateWithWeekday}">
+            ` : ''}
+        </article>`;
+    },
+
+    /**
+     * 格式化日期并添加星期
+     */
+    formatDateWithWeekday(dateStr) {
+        if (!dateStr) return '未标记日期';
+        // 尝试解析中文日期格式：YYYY年M月D日
+        const match = dateStr.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+        if (match) {
+            const [, year, month, day] = match;
+            const date = new Date(year, month - 1, day);
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            const weekday = weekdays[date.getDay()];
+            return `${dateStr} 周${weekday}`;
+        }
+        return dateStr;
     },
 
     cardDefault(it, type = 'default') {

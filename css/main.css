@@ -22,6 +22,7 @@
 @import "components/card-game.css";
 @import "components/card-photo.css";
 @import "components/card-book.css";
+@import "components/card-diary.css";
 
 /* 5. Utilities (Trumps) */
 @import "utilities.css";
