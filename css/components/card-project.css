@@ -16,6 +16,12 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.15s ease;
+}
+
+/* 项目卡片悬停：标题变强调色 */
+.card-project:hover h3 {
+    color: var(--accent-project);
 }
 
 .card-project p {

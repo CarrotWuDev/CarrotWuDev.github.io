@@ -41,6 +41,12 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.15s ease;
+}
+
+/* 照片卡片悬停：标题变强调色 */
+.card-photo:hover h3 {
+    color: var(--accent-photo);
 }
 
 .photo-meta {
@@ -165,6 +171,12 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.15s ease;
+}
+
+/* 图集悬停：标题变强调色 */
+.gallery-item:hover h4 {
+    color: var(--accent-photo);
 }
 
 /* 导航按钮 (Prev/Next) */

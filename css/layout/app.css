@@ -203,27 +203,28 @@ nav a[aria-current="true"][data-type="default"] {
 
 /* 主题切换按钮 */
 .theme-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    margin-top: 8px;
     background: transparent;
-    border: 2px solid var(--line);
-    color: var(--fg);
+    border: none;
+    padding: 0;
+    margin: 0;
+    /* 重置默认 margin */
     cursor: pointer;
-    transition: background 0.15s, color 0.15s;
+    color: var(--muted);
+    transition: color 0.15s;
+    display: flex;
+    align-items: center;
 }
 
 .theme-toggle:hover {
-    background: var(--fg);
-    color: var(--bg);
+    color: var(--fg);
+    background: transparent;
+    /* 移除之前的背景色变化 */
 }
 
 .theme-toggle svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
+    /* 稍微调大一点点以匹配社交图标视觉大小 */
 }
 
 /* 主内容容器：section 间距 */

@@ -19,6 +19,12 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.15s ease;
+}
+
+/* 游戏卡片悬停：标题变强调色 */
+.card-game:hover h3 {
+    color: var(--accent-game);
 }
 
 .game-meta {

@@ -94,6 +94,12 @@
     text-overflow: ellipsis;
     flex: 1;
     min-width: 0;
+    transition: color 0.15s ease;
+}
+
+/* 读书卡片悬停：标题变强调色 */
+.card-book:hover h3 {
+    color: var(--accent-book);
 }
 
 /* 第2行：作者 · 年份 */
