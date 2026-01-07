@@ -12,6 +12,35 @@ const TYPE_REGISTRY = {
     diary: { hasStaticCSS: true }
 };
 
+/**
+ * 心情文字 → Emoji 映射
+ * @see 日记.md 中定义的心情选项
+ */
+const MOOD_EMOJI_MAP = {
+    '开心': '😊',
+    '平静': '😌',
+    '一般': '😐',
+    '疲惫': '😩',
+    '低落': '😔',
+    '焦虑': '😰',
+    '生气': '😠'
+};
+
+/**
+ * 天气文字 → Emoji 映射
+ * @see 日记.md 中定义的天气选项
+ */
+const WEATHER_EMOJI_MAP = {
+    '晴朗': '☀️',
+    '多云': '⛅',
+    '阴天': '☁️',
+    '小雨': '🌧️',
+    '雷雨': '⛈️',
+    '雪': '❄️',
+    '雾': '🌫️',
+    '风': '💨'
+};
+
 export const RenderService = {
     /**
      * 初始化交互 (事件委托)
@@ -357,18 +386,24 @@ export const RenderService = {
 
     /**
      * 日记卡片 - 时间线布局
+     * 设计方案 C：时间线 Emoji 徽章
      */
     cardDiary(it) {
         // 解析日期并添加星期
         const dateWithWeekday = this.formatDateWithWeekday(it.title);
 
+        // 获取心情 emoji（用于时间线标记，默认使用 📝 作为 fallback）
+        const moodEmoji = it.mood ? (MOOD_EMOJI_MAP[it.mood] || '📝') : '📝';
+
+        // 获取天气 emoji（纯 emoji 显示，无文字）
+        const weatherEmoji = it.weather ? (WEATHER_EMOJI_MAP[it.weather] || it.weather) : '';
+
         return `
         <article class="card card-diary">
-            <div class="timeline-marker"></div>
+            <div class="timeline-marker">${moodEmoji}</div>
             <div class="diary-header">
-                ${it.mood ? `<span class="diary-mood">${it.mood}</span>` : ''}
                 <time class="diary-date">${dateWithWeekday}</time>
-                ${it.weather ? `<span class="diary-weather">${it.weather}</span>` : ''}
+                ${weatherEmoji ? `<span class="diary-weather">${weatherEmoji}</span>` : ''}
             </div>
             ${it.content ? `<div class="diary-content"><p>${it.content}</p></div>` : ''}
             ${it.image ? `

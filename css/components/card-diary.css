@@ -5,6 +5,11 @@
  * 1. 布局：左侧时间线 (Timeline) + 右侧内容卡片 (Card)
  * 2. 交互：悬停时高亮圆点、文字及边框
  * 3. 对齐：圆点与日期/标题行垂直对齐 (Baseline Alignment)
+ * 
+ * 时间线实现策略 (业界最佳实践):
+ * - 每个卡片使用 ::before 伪元素画自己的线段
+ * - 最后一个卡片使用 :last-child 隐藏线段
+ * - 这样时间线会在最后一个 emoji 徽章处自然结束
  */
 
 /* --- 容器布局 (Timeline Layout) --- */
@@ -15,6 +20,8 @@
     /* 时间线区域宽度 */
     --card-border-width: 2px;
     /* 卡片边框宽度 (用于修正定位偏差) */
+    --timeline-line-width: 3px;
+    /* 时间线线条宽度 */
 
     display: flex;
     flex-direction: column;
@@ -24,24 +31,12 @@
     padding-left: var(--timeline-gutter);
 }
 
-/* 时间线垂直线 (Vertical Line) */
-.cards:has(.card-diary)::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: var(--line);
-    border-radius: 1.5px;
-
-    /* 
-     * 水平对齐逻辑 (Left Alignment):
-     * 目标：黑线左边缘与上方标题 (H2) 左边缘对齐 (Left: 0)
-     * 取消之前的居中逻辑，直接贴左边。
-     */
-    left: 0;
-    /* transform: translateX(-50%);  <-- 移除，不再需要居中 */
-}
+/* 
+ * [已移除] 容器级别的时间线 
+ * 原来使用 .cards:has(.card-diary)::before 画一条贯穿整个容器的线
+ * 问题：无法在最后一个卡片处结束
+ * 解决方案：改为每个卡片自己画线段 (见下方 .card-diary::before)
+ */
 
 /* --- 卡片组件 (Card Component) --- */
 
@@ -58,72 +53,126 @@
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
+/* 
+ * 时间线线段 (Per-Card Timeline Segments)
+ * 
+ * 使用双伪元素方案确保 emoji 徽章之间完全连接：
+ * - ::before = 上半段（卡片顶部 → emoji 上边缘）
+ * - ::after  = 下半段（emoji 下边缘 → 卡片底部 + margin）
+ * 
+ * 控制逻辑：
+ * - 第一个卡片：只画 ::after（无上方连接）
+ * - 中间卡片：两段都画
+ * - 最后一个卡片：只画 ::before（无下方连接）
+ * 
+ * 关键尺寸（桌面端）：
+ * - emoji 徽章 top: 14px, height: 32px
+ * - emoji 上边缘: 14px
+ * - emoji 下边缘: 14px + 32px = 46px
+ * - 卡片 margin-bottom: 24px
+ */
+
+/* 公共样式：两个伪元素共享的属性 */
+.card-diary::before,
+.card-diary::after {
+    content: '';
+    position: absolute;
+    width: var(--timeline-line-width);
+    background: var(--line);
+    border-radius: calc(var(--timeline-line-width) / 2);
+
+    /* 水平对齐：与 emoji 徽章中心对齐 */
+    left: calc(-1 * var(--timeline-gutter));
+}
+
+/* 上半段：从卡片顶部到 emoji 上边缘 */
+.card-diary::before {
+    /* 向上延伸覆盖边框厚度，确保与上一个卡片的 ::after 无缝连接 */
+    top: calc(-1 * var(--card-border-width));
+    /* 高度需加上边框补偿：14px (emoji top) + 2px (border) */
+    height: calc(14px + var(--card-border-width));
+}
+
+/* 下半段：从 emoji 下边缘到卡片底部 + margin */
+.card-diary::after {
+    top: 46px;
+    /* emoji 下边缘 (14px + 32px) */
+    /* 向下延伸覆盖 margin + 下一个卡片的边框厚度 */
+    bottom: calc(-1 * (24px + var(--card-border-width)));
+}
+
+/* 第一个卡片：隐藏上半段（时间线从第一个 emoji 开始） */
+.card-diary:first-child::before {
+    display: none;
+}
+
+/* 最后一个卡片：隐藏下半段（时间线在最后一个 emoji 结束） */
+.card-diary:last-child::after {
+    display: none;
+}
+
 .card-diary:hover {
     border-color: var(--accent-diary);
     box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-diary), transparent 40%);
 }
 
 /* --- 时间线标记 (Timeline Marker) --- */
+/* 方案 C：圆形 Emoji 徽章 */
 
 .timeline-marker {
     position: absolute;
     z-index: 1;
-    width: 12px;
-    height: 12px;
+
+    /* 尺寸：容纳 emoji + padding */
+    width: 32px;
+    height: 32px;
+
+    /* 圆形徽章样式 */
     background: var(--bg);
-    border: 3px solid var(--line);
+    border: 2px solid var(--line);
     border-radius: 50%;
 
+    /* Emoji 居中显示 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    /* 占容器 69%，符合 60%-75% 最佳实践 */
+    line-height: 1;
+
     /* 
-     * 水平对齐: 
-     * 目标：圆点中心对齐黑线中心。
-     * 线宽 3px -> 中心 1.5px
-     * 此元素相对定位基准是 .card-diary (Padding Box)，且受 Border 影响。
-     * 
-     * 公式推导：
-     * 1. 目标位置（相对于容器）：1.5px
-     * 2. 当前原点（相对于容器）：Padding (24px) + Border (2px) = 26px
-     * 3. 需要向左移动：26px - 1.5px = 24.5px
-     * 4. 考虑到 transform(-50%) 会让圆点左移半径 (6px)。
-     *    最终 left 设为 1.5px 处对应的偏移量。
-     * 
-     * 简化写法：
-     * left: calc( -1 * (Padding + Border - LineCenter) )
-     * left: calc( -1 * (var(--timeline-gutter) + var(--card-border-width) - 1.5px) )
+     * 水平对齐:
+     * 目标：徽章中心对齐时间线中心 (1.5px)
+     * 公式：left = -1 * (Padding + Border - LineCenter)
      */
     left: calc(-1 * (var(--timeline-gutter) + var(--card-border-width) - 1.5px));
     transform: translateX(-50%);
 
     /* 
-     * 垂直对齐: 
-     * 对齐头部文字中心线 (Padding 20px + Emoji 12px - Marker 6px = 26px)
+     * 垂直对齐:
+     * 与日期行中心对齐 (Padding 20px + 行高一半)
      */
-    top: 26px;
+    top: 14px;
 
-    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+    transition: border-color 0.2s ease, transform 0.2s ease;
 }
 
 /* 标记悬停效果 */
 .card-diary:hover .timeline-marker {
     border-color: var(--accent-diary);
-    background: var(--bg);
-    /* 保持空心效果 */
-    transform: translateX(-50%) scale(1.2);
+    transform: translateX(-50%) scale(1.1);
 }
 
 /* --- 内容区域 (Content Sections) --- */
 
-/* 头部 (Header) */
+/* 头部 (Header) - 左右平衡布局 */
 .diary-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    /* 日期靠左，天气靠右 */
     gap: 12px;
     flex-wrap: wrap;
-}
-
-.diary-mood {
-    font-size: 24px;
-    line-height: 1;
 }
 
 .diary-date {
@@ -138,26 +187,18 @@
     color: var(--accent-diary);
 }
 
-/* 天气标签 */
+/* 天气 (纯 Emoji 显示) */
 .diary-weather {
-    font-size: 13px;
-    color: var(--muted);
-    padding: 4px 10px;
-    background: var(--bg-subtle);
-    border: 2px solid var(--line);
-    border-radius: 4px;
-    transition: border-color 0.15s ease, color 0.15s ease;
-}
-
-.card-diary:hover .diary-weather {
-    border-color: var(--accent-diary);
-    color: var(--accent-diary);
+    font-size: 20px;
+    line-height: 1;
+    /* 移除标签样式，只显示 emoji */
 }
 
 /* 正文 (Content) */
 .diary-content {
     background: var(--bg-subtle);
     padding: 16px;
+    /* 常态使用默认边框色，悬浮时变为强调色 */
     border-left: 3px solid var(--line);
     transition: border-color 0.15s ease;
 }
@@ -200,27 +241,40 @@
     /* 重写变量以自动调整布局 */
     .cards:has(.card-diary) {
         --timeline-gutter: 20px;
+        --timeline-line-width: 2px;
+        /* 移动端线条更细 */
     }
 
-    /* 样式微调 */
-    .cards:has(.card-diary)::before {
-        width: 2px;
+    /* 移动端卡片线段适配 */
+    /* emoji 徽章: top 10px, height 28px → 上边缘 10px, 下边缘 38px */
+    /* 卡片 margin-bottom: 16px */
+    .card-diary::before {
+        /* 高度：emoji top (10px) + 边框补偿 */
+        height: calc(10px + var(--card-border-width));
+    }
+
+    .card-diary::after {
+        top: 38px;
+        /* emoji 下边缘 (10px + 28px) */
+        /* 向下延伸覆盖 margin (16px) + 边框厚度 */
+        bottom: calc(-1 * (16px + var(--card-border-width)));
     }
 
     .timeline-marker {
-        width: 10px;
-        height: 10px;
-        border-width: 2px;
+        /* 移动端缩小尺寸 */
+        width: 28px;
+        height: 28px;
+        font-size: 18px;
+        /* 占容器 64% */
 
         /* 
          * 移动端水平对齐重算:
          * Padding (20px) + Border (2px) - LineCenter (1px) = 21px
-         * Left = -21px
          */
         left: calc(-1 * (var(--timeline-gutter) + var(--card-border-width) - 1px));
 
-        /* 移动端垂直对齐修正 (16px + 10px - 5px = 21px) */
-        top: 21px;
+        /* 移动端垂直对齐修正 */
+        top: 10px;
     }
 
     .card-diary {
@@ -232,8 +286,8 @@
         gap: 8px;
     }
 
-    .diary-mood {
-        font-size: 20px;
+    .diary-weather {
+        font-size: 18px;
     }
 
     .diary-date {
