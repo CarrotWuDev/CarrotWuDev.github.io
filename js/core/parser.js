@@ -224,7 +224,26 @@ export const Parser = {
                 continue;
             }
 
-            // Images
+            // Music fields
+            const artist = parseField(trimmed, '作者');
+            if (artist) { target.artist = artist; continue; }
+
+            const duration = parseField(trimmed, '歌曲时长');
+            if (duration) { target.duration = parseInt(duration, 10); continue; }
+
+            const album = parseField(trimmed, '专辑');
+            if (album) { target.album = album; continue; }
+
+            const releaseTime = parseField(trimmed, '发行时间');
+            if (releaseTime) { target.releaseTime = releaseTime; continue; }
+
+            const audioPreview = parseField(trimmed, '音频预览');
+            if (audioPreview) {
+                const m = audioPreview.match(/\[.*?\]\((.*?)\)$/);
+                target.audioPreview = m ? m[1] : audioPreview;
+                continue;
+            }
+
             // Images
             const coverRaw = parseField(trimmed, '封面') || parseField(trimmed, 'Cover');
             if (coverRaw) {

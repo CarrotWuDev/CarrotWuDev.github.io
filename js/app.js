@@ -3,6 +3,7 @@ import { RenderService } from './ui/render.js';
 import { initTheme } from './ui/theme.js';
 import { initTooltip } from './ui/tooltip.js';
 import { initScrollbarBehavior } from './ui/scroll.js';
+import { AudioPlayer } from './ui/audio-player.js';
 
 /**
  * 应用程序入口
@@ -18,7 +19,10 @@ async function init() {
         // 3. 渲染页面
         RenderService.renderAll(data);
 
-        // 4. 启动滚动监听
+        // 4. 初始化音乐播放器
+        initAudioPlayer();
+
+        // 5. 启动滚动监听
         setupScrollSpy();
 
     } catch (e) {
@@ -107,6 +111,32 @@ function setupScrollSpy() {
         const sections = document.querySelectorAll('#contentRoot section');
         sections.forEach(sec => observer.observe(sec));
     }, 100);
+}
+
+/**
+ * 初始化音乐播放器
+ * 查找 .music-section 元素并解析播放列表数据
+ */
+function initAudioPlayer() {
+    const musicSection = document.querySelector('.music-section');
+    if (!musicSection) {
+        console.log('[App] No music section found, skipping AudioPlayer init');
+        return;
+    }
+
+    // 解析 data-playlist 属性中的 JSON 数据
+    const playlistData = musicSection.dataset.playlist;
+    if (!playlistData) {
+        console.warn('[App] Music section found but no playlist data');
+        return;
+    }
+
+    try {
+        const playlist = JSON.parse(playlistData);
+        AudioPlayer.init(playlist);
+    } catch (e) {
+        console.error('[App] Failed to parse playlist data:', e);
+    }
 }
 
 /**

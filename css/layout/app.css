@@ -195,6 +195,10 @@ nav a[aria-current="true"][data-type="diary"] {
     background: var(--accent-diary);
 }
 
+nav a[aria-current="true"][data-type="music"] {
+    background: var(--accent-music);
+}
+
 /* 未定义类型的回退色 */
 nav a[aria-current="true"]:not([data-type]),
 nav a[aria-current="true"][data-type="default"] {

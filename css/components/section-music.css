@@ -1,0 +1,525 @@
+/* ====== 音乐 Section (Music Section) ====== */
+
+/**
+ * 设计规范 (Neo-Brutalism):
+ * 1. 布局：左播放器 (Player) + 右播放列表 (Playlist)
+ * 2. 强调色：#ec4899 (粉色)
+ * 3. 交互：悬停高亮、播放状态同步
+ * 
+ * 结构说明：
+ * - .music-section 是整体容器，使用 Grid 左右分栏
+ * - .music-player 包含封面、歌曲信息、进度条、控制按钮
+ * - .music-playlist 包含标题和歌曲列表
+ */
+
+/* --- 整体容器 (Section Container) --- */
+
+.music-section {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 0;
+    border: 2px solid var(--line);
+    background: var(--bg);
+    box-shadow: 4px 4px 0 var(--shadow);
+    overflow: hidden;
+
+
+
+}
+
+/* --- 左侧播放器 (Player Panel) --- */
+
+.music-player {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border-right: 2px solid var(--line);
+    gap: 16px;
+}
+
+/* 封面图片 */
+.player-cover {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    /* 始终全彩 */
+    transition: transform 0.3s ease;
+    box-shadow: 4px 4px 0 var(--shadow);
+}
+
+/* 歌曲信息 */
+.player-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.player-title {
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0.4px;
+    color: var(--fg);
+    margin: 0;
+
+    /* 标题过长时省略 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-artist {
+    font-size: 14px;
+    color: var(--muted);
+    margin: 0;
+
+    /* 艺术家名过长时省略 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 进度条区域 */
+.player-progress-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.player-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-subtle);
+    border: 2px solid var(--line);
+    border-radius: 4px;
+    /* 轻微圆角 */
+    cursor: pointer;
+    position: relative;
+    overflow: visible;
+    /* 允许手柄超出 */
+}
+
+.player-progress-fill {
+    height: 100%;
+    background: var(--accent-music);
+    /* 始终显示强调色 */
+    width: 0%;
+    border-radius: 2px;
+    transition: width 0.25s linear;
+    position: relative;
+}
+
+/* 进度条手柄 */
+.player-progress-fill::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%) scale(0);
+    width: 12px;
+    height: 12px;
+    background: white;
+    /* 纯白手柄，最高对比度 */
+    border-radius: 50%;
+    /* 移除边框，增强阴影立体感 */
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s ease;
+    z-index: 2;
+}
+
+/* 悬浮或播放时显示手柄 */
+/* 悬浮时显示手柄 */
+.player-progress-bar:hover .player-progress-fill::after {
+    transform: translateY(-50%) scale(1);
+}
+
+/* 拖拽/点击时手柄放大反馈 */
+.player-progress-bar:active .player-progress-fill::after {
+    transform: translateY(-50%) scale(1.3);
+}
+
+.player-time {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* 控制按钮区域 */
+.player-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+
+.player-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    border: 2px solid var(--line);
+    color: var(--fg);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 3px 3px 0 var(--shadow);
+}
+
+.player-btn:hover {
+    border-color: var(--accent-music);
+    color: var(--accent-music);
+    box-shadow: 3px 3px 0 color-mix(in srgb, var(--accent-music), transparent 50%);
+}
+
+.player-btn:active {
+    box-shadow: none;
+    transform: translate(3px, 3px);
+}
+
+/* 按钮图标 SVG */
+.player-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    display: block;
+}
+
+/* 播放/暂停按钮 (核心交互) */
+.player-btn-play {
+    width: 48px;
+    height: 48px;
+    background: var(--accent-music);
+    border-color: var(--accent-music);
+    color: white;
+    /* 始终白字 */
+}
+
+/* 播放按钮悬浮态 */
+.player-btn-play:hover {
+    background: var(--accent-music);
+    border-color: var(--accent-music);
+    color: white;
+    filter: brightness(1.1);
+    /* 轻微提亮 */
+    box-shadow: 3px 3px 0 color-mix(in srgb, var(--accent-music), transparent 50%);
+}
+
+/* 播放按钮点击态 */
+.player-btn-play:active {
+    box-shadow: none;
+    transform: translate(3px, 3px);
+}
+
+/* 外链按钮 */
+.player-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--bg);
+    border: 2px solid var(--line);
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.player-link:hover {
+    color: var(--accent-music);
+    border-color: var(--accent-music);
+}
+
+.player-link::after {
+    content: '→';
+}
+
+/* Spotify 图标 */
+.player-link .spotify-icon {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+/* --- 右侧播放列表 (Playlist Panel) --- */
+
+.music-playlist {
+    display: flex;
+    flex-direction: column;
+    max-height: 500px;
+    overflow: hidden;
+}
+
+/* 播放列表头部 */
+.playlist-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 2px solid var(--line);
+}
+
+.playlist-title {
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0.4px;
+    color: var(--fg);
+    margin: 0;
+}
+
+
+
+/* 播放列表内容 */
+.playlist-content {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-bg) transparent;
+}
+
+.playlist-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.playlist-content::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-bg);
+    border-radius: 3px;
+}
+
+/* 单个播放项 */
+.playlist-item {
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.playlist-item:hover {
+    background: var(--bg-subtle);
+}
+
+/* 当前选中的歌曲（暂停状态） */
+.playlist-item.is-current {
+    background: var(--bg-subtle);
+}
+
+/* 正在播放时：当前歌曲显示强调色 */
+/* 正在播放时：当前歌曲背景保持淡灰，避免大色块 */
+.music-section.is-playing .playlist-item.is-current {
+    background: var(--bg-subtle);
+    color: inherit;
+}
+
+/* 播放项封面包装器 */
+.playlist-item-cover-wrapper {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 2px;
+    overflow: hidden;
+    /* 裁剪溢出 */
+    box-shadow: 2px 2px 0 var(--shadow);
+    border: 2px solid var(--line);
+    flex-shrink: 0;
+}
+
+/* 播放项封面 */
+.playlist-item-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* 频谱指示器容器 */
+.playing-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    /* 半透明遮罩 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    opacity: 0;
+    /* 默认隐藏 */
+    transition: opacity 0.2s ease;
+    z-index: 2;
+}
+
+/* 频谱条 */
+.playing-indicator .bar {
+    width: 3px;
+    background-color: var(--accent-music);
+    border-radius: 1px;
+    /* 默认高度 */
+    height: 4px;
+}
+
+/* 动画定义: 模拟频谱跳动 */
+@keyframes spectrum-jump {
+    0% {
+        height: 4px;
+    }
+
+    50% {
+        height: 20px;
+    }
+
+    100% {
+        height: 4px;
+    }
+}
+
+/* 正在播放时：显示遮罩 */
+.music-section.is-playing .playlist-item.is-current .playing-indicator {
+    opacity: 1;
+}
+
+/* 正在播放时：启动动画 */
+.music-section.is-playing .playlist-item.is-current .playing-indicator .bar {
+    animation: spectrum-jump 0.8s infinite ease-in-out;
+}
+
+/* 为每个条添加不同的延迟，模拟随机性 */
+.playing-indicator .bar-1 {
+    animation-delay: 0s;
+    height: 8px;
+}
+
+.playing-indicator .bar-2 {
+    animation-delay: 0.2s;
+    height: 16px;
+}
+
+.playing-indicator .bar-3 {
+    animation-delay: 0.4s;
+    height: 6px;
+}
+
+.playing-indicator .bar-4 {
+    animation-delay: 0.1s;
+    height: 12px;
+}
+
+/* 播放项信息 */
+.playlist-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.playlist-item-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: inherit;
+    margin: 0;
+
+    /* 标题过长时省略 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.playlist-item-artist {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0;
+
+    /* 艺术家名过长时省略 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 播放项时长 */
+.playlist-item-duration {
+    font-size: 12px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+
+/* 选中状态：标题始终为强调色 */
+.playlist-item.is-current .playlist-item-title {
+    color: var(--accent-music);
+}
+
+
+
+/* --- 移动端适配 (Responsive) --- */
+
+@media (max-width: 767px) {
+
+    /* 改为垂直堆叠布局 */
+    .music-section {
+        grid-template-columns: 1fr;
+    }
+
+    /* 播放器调整 */
+    .music-player {
+        border-right: none;
+        border-bottom: 2px solid var(--line);
+        padding: 16px;
+    }
+
+    /* 封面尺寸限制 */
+    .player-cover {
+        max-width: 200px;
+        margin: 0 auto;
+    }
+
+    .player-title {
+        font-size: 16px;
+        text-align: center;
+    }
+
+    .player-artist {
+        font-size: 13px;
+        text-align: center;
+    }
+
+    .player-info {
+        align-items: center;
+    }
+
+    /* 播放列表高度限制 */
+    .music-playlist {
+        max-height: 300px;
+    }
+
+    .playlist-header {
+        padding: 12px 16px;
+    }
+
+    .playlist-title {
+        font-size: 16px;
+    }
+
+    .playlist-item {
+        padding: 10px 16px;
+        grid-template-columns: 40px 1fr auto;
+        gap: 10px;
+    }
+
+    .playlist-item-cover {
+        width: 40px;
+        height: 40px;
+    }
+
+    .playlist-item-title {
+        font-size: 13px;
+    }
+
+    .playlist-item-artist {
+        font-size: 11px;
+    }
+}
