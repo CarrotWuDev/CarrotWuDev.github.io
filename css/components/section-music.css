@@ -16,7 +16,7 @@
 
 .music-section {
     display: grid;
-    grid-template-columns: 1fr 1.5fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
     gap: 0;
     border: 2px solid var(--line);
     background: var(--bg);

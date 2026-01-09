@@ -52,8 +52,8 @@ export const MusicUI = {
                      alt="${firstTrack.title || '专辑封面'}"
                      loading="lazy">
                 <div class="player-info">
-                    <h3 class="player-title">${firstTrack.title || '未命名'}</h3>
-                    <p class="player-artist">${getArtist(firstTrack)}</p>
+                    <h3 class="player-title" data-tooltip="${firstTrack.title || '未命名'}">${firstTrack.title || '未命名'}</h3>
+                    <p class="player-artist" data-tooltip="${getArtist(firstTrack)}">${getArtist(firstTrack)}</p>
                 </div>
                 <div class="player-progress-wrapper">
                     <div class="player-progress-bar">
@@ -103,8 +103,8 @@ export const MusicUI = {
                     </div>
                 </div>
                 <div class="playlist-item-info">
-                    <h4 class="playlist-item-title">${item.title || '未命名'}</h4>
-                    <p class="playlist-item-artist">${getArtist(item)}</p>
+                    <h4 class="playlist-item-title" data-tooltip="${item.title || '未命名'}">${item.title || '未命名'}</h4>
+                    <p class="playlist-item-artist" data-tooltip="${getArtist(item)}">${getArtist(item)}</p>
                 </div>
                 <span class="playlist-item-duration">${this.formatDuration(item.duration)}</span>
             </div>
@@ -151,8 +151,14 @@ export const MusicUI = {
             const link = section.querySelector(SELECTORS.LINK);
 
             if (cover) { cover.src = track.cover; cover.alt = track.title; }
-            if (title) title.textContent = track.title || '未命名';
-            if (artist) artist.textContent = track.artist || '未知艺术家';
+            if (title) {
+                title.textContent = track.title || '未命名';
+                title.setAttribute('data-tooltip', track.title || '未命名');
+            }
+            if (artist) {
+                artist.textContent = track.artist || '未知艺术家';
+                artist.setAttribute('data-tooltip', track.artist || '未知艺术家');
+            }
             if (durationEl) durationEl.textContent = this.formatDuration(duration || track.duration);
             if (link) link.href = track.linkUrl || '#';
 
