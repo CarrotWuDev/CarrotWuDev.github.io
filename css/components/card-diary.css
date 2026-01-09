@@ -113,7 +113,7 @@
 
 .card-diary:hover {
     border-color: var(--accent-diary);
-    box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-diary), transparent 40%);
+    box-shadow: var(--card-hover-shadow) color-mix(in srgb, var(--accent-diary), transparent 40%);
 }
 
 /* --- 时间线标记 (Timeline Marker) --- */

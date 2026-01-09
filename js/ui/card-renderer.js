@@ -21,6 +21,7 @@ export const CardRenderer = {
             case 'photo': return this.cardPhoto(item);
             case 'book': return this.cardBook(item);
             case 'diary': return this.cardDiary(item);
+            case 'film': return this.cardFilm(item);
             default: return this.cardDefault(item, type);
         }
     },
@@ -156,6 +157,59 @@ export const CardRenderer = {
                 <button class="gallery-nav next" aria-label="Next image">❯</button>
                 <div class="gallery-container" data-total="${it.photos.length}">
                     ${photosHtml}
+                </div>
+            </div>
+        </div>`;
+    },
+
+    cardFilm(it) {
+        // Meta: Region • Duration • Year
+        const metaParts = [];
+        if (it.region) metaParts.push(it.region);
+        if (it.duration) metaParts.push(`${it.duration}分钟`);
+        if (it.releaseDate) {
+            const yearStr = it.releaseDate.match(/^\d{4}/) ? it.releaseDate.match(/^\d{4}/)[0] : '';
+            if (yearStr) metaParts.push(yearStr);
+        }
+        const metaStr = metaParts.join(' &bull; ');
+
+        return `
+        <div class="card card-film">
+            <div class="card-film-container">
+                <!-- Divider Line -->
+                <div class="card-film-divider"></div>
+
+                <!-- Stub -->
+                <div class="film-stub">
+                    ${it.status ? `<div class="film-status">${it.status}</div>` : ''}
+                    ${it.cover ? `<img class="film-poster" src="${it.cover}" loading="lazy" alt="${it.title}">` : ''}
+                </div>
+
+                <!-- Main -->
+                <div class="film-main">
+                    <div class="film-info">
+                        <h3 class="film-title" data-tooltip="${it.title}">${it.title}</h3>
+                        <div class="film-meta-row">${metaStr}</div>
+                        
+                        <div class="film-credits">
+                            ${it.director ? `<div class="film-credit-line"><strong>DIRECTOR:</strong> ${it.director}</div>` : ''}
+                            ${it.starring ? `<div class="film-credit-line"><strong>STARRING:</strong> ${it.starring}</div>` : ''}
+                        </div>
+                        
+                        ${it.review ? `<div class="film-quote">“${it.review}”</div>` : ''}
+                    </div>
+
+                    <div class="film-footer">
+                        <div class="film-tags">
+                            ${it.tags ? it.tags.split(/[、,，]/).map(t => `<span class="tag film-tag">${t.trim()}</span>`).join('') : ''}
+                        </div>
+                        
+                        ${it.linkUrl ? `
+                            <div class="film-actions">
+                                <a href="${it.linkUrl}" target="_blank" class="btn-douban">DOUBAN ↗</a>
+                            </div>
+                        ` : ''}
+                    </div>
                 </div>
             </div>
         </div>`;

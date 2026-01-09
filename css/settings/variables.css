@@ -18,6 +18,8 @@
     /* Orange-600: 照片专属 */
     --accent-book: #10b981;
     /* Emerald-500: 读书专属 */
+    --accent-film: #a855f7;
+    /* Purple-500: 电影专属 */
 
     /* 间距 */
     --space-page: 32px;
@@ -34,6 +36,12 @@
     /* 响应式间距（移动端） */
     --space-page-mobile: 16px;
     --space-section-mobile: 32px;
+
+    /* 交互动效 (默认) */
+    --card-hover-scale: 1.03;
+    --card-hover-shadow: 4px 4px 0;
+    --duration-normal: 0.3s;
+    --duration-fast: 0.15s;
 }
 
 /* ====== 暗色主题 ====== */

@@ -1,0 +1,305 @@
+/* 电影票卡片 (Neo-Brutalism + Ticket Metaphor) v2.1 */
+.card-film {
+    /* 核心参数 */
+    --stub-width: 140px;
+    --hole-size: 20px;
+    --hole-radius: calc(var(--hole-size) / 2);
+    --ticket-bg: #fff;
+    --border-width: 2px;
+    /* 与 .card 边框宽度保持一致 */
+    --card-accent: var(--accent-film);
+    /* 电影专属强调色 */
+
+    /* 覆盖 Base Card 设置 */
+    display: flex;
+    /* 覆盖 .card 的 display:grid */
+    position: relative;
+    overflow: visible;
+
+    /* 重置基础卡片样式，电影卡片使用独立的布局结构 */
+    background: transparent;
+    border: none;
+    padding: 0;
+
+    /* 
+     * 阴影放在父元素 .card-film 上，而不是 .card-film-container 上
+     * 原因：.card-film-container 使用了 CSS mask，会影响 box-shadow 的渲染
+     * 这与其他卡片类型（阴影在 .card 元素上）保持一致的实现结构
+     */
+    box-shadow: 4px 4px 0 var(--shadow);
+    transition: box-shadow var(--duration-fast);
+
+    /* 布局修复: 默认跨两列以保证票面宽度 */
+    /* 注意: .cards 定义了 grid-template-columns: repeat(auto-fill, ...).
+       span 2 会让它占据两个卡片位 */
+    grid-column: span 2;
+    /* 覆盖 card 的 grid-row: span 6; 让高度自适应内容，或是保持 span 6 但内容撑开轨道 */
+    grid-row: auto;
+}
+
+/* 绘制整个票形容器 */
+.card-film-container {
+    display: flex;
+    flex-direction: row;
+    /* 默认横向 */
+    width: 100%;
+    height: 100%;
+    background: var(--ticket-bg);
+    border: var(--border-width) solid #000;
+    position: relative;
+
+    /* Masking for Holes */
+    --mask-position-x: calc(var(--stub-width));
+
+    -webkit-mask-image:
+        radial-gradient(circle at var(--mask-position-x) 0, transparent var(--hole-radius), black calc(var(--hole-radius) + 0.5px)),
+        radial-gradient(circle at var(--mask-position-x) 100%, transparent var(--hole-radius), black calc(var(--hole-radius) + 0.5px));
+
+    -webkit-mask-size: 100% 51%;
+    -webkit-mask-position: top, bottom;
+    -webkit-mask-repeat: no-repeat;
+
+    mask-image:
+        radial-gradient(circle at var(--mask-position-x) 0, transparent var(--hole-radius), black calc(var(--hole-radius) + 0.5px)),
+        radial-gradient(circle at var(--mask-position-x) 100%, transparent var(--hole-radius), black calc(var(--hole-radius) + 0.5px));
+
+    mask-size: 100% 51%;
+    mask-position: top, bottom;
+    mask-repeat: no-repeat;
+
+    /* 边框过渡效果 */
+    transition: border-color var(--duration-fast);
+}
+
+/* 悬浮状态：阴影和边框变化 */
+.card-film:hover {
+    z-index: 10;
+    /* 阴影在父元素上，与其他卡片保持一致 */
+    box-shadow: var(--card-hover-shadow) color-mix(in srgb, var(--card-accent), transparent 40%);
+}
+
+.card-film:hover .card-film-container {
+    border-color: var(--card-accent);
+}
+
+/* --- 分割线 --- */
+/* 
+ * 对齐说明：
+ * 
+ * 水平方向 (left)：
+ * - mask-image 的圆心位置相对于 border-box（含边框）
+ * - absolute 定位的 left 相对于 padding-box（不含边框）
+ * - 需减去边框宽度以补偿参照系差异，确保分割线精确穿过缺口圆心
+ * 
+ * 垂直方向 (top/bottom)：
+ * - 半圆缺口圆心位于容器顶部/底部边缘（Y=0 / Y=100%）
+ * - 半圆半径为 --hole-radius，因此缺口边缘距容器边缘 = --hole-radius
+ * - 分割线的 top/bottom 设为 --hole-radius，使端点正好接触缺口边缘
+ */
+.card-film-divider {
+    position: absolute;
+    left: calc(var(--stub-width) - var(--border-width));
+    top: var(--hole-radius);
+    bottom: var(--hole-radius);
+    width: 0;
+    border-left: 2px dashed #000;
+    z-index: 5;
+}
+
+/* --- Left Stub --- */
+/* 
+ * 对齐说明：
+ * - mask-image 的圆心位置相对于 border-box（含边框）
+ * - 内部 flex 子元素在 padding-box 内布局（不含边框）
+ * - 需减去边框宽度以补偿参照系差异，确保封面右边缘精确对齐缺口圆心
+ */
+.film-stub {
+    width: calc(var(--stub-width) - var(--border-width));
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.film-poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(20%);
+    transition: filter 0.3s;
+}
+
+.card-film:hover .film-poster {
+    filter: grayscale(0%);
+}
+
+.film-status {
+    position: absolute;
+    top: 15px;
+    left: -5px;
+    background: var(--card-accent);
+    color: #000;
+    font-family: var(--font-mono);
+    font-weight: 900;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border: 2px solid #000;
+    transform: rotate(-15deg);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+    z-index: 6;
+}
+
+/* --- Right Main --- */
+.film-main {
+    flex-grow: 1;
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.film-title {
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin: 0 0 8px 0;
+    line-height: 1.1;
+    color: #000;
+}
+
+.film-meta-row {
+    font-family: var(--font-mono);
+    color: #555;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.film-credits {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    border-top: 2px solid #eee;
+    padding-top: 12px;
+}
+
+.film-credit-line strong {
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    margin-right: 6px;
+    color: #000;
+}
+
+.film-quote {
+    font-family: serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: #444;
+    border-left: 4px solid var(--card-accent);
+    padding-left: 16px;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.film-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.film-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.tag.film-tag {
+    background: #000;
+    color: #fff;
+    border: 1px solid #000;
+    font-size: 12px;
+    padding: 2px 8px;
+}
+
+.card-film:hover .tag.film-tag {
+    background: var(--card-accent);
+    color: #000;
+}
+
+.btn-douban {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 16px;
+    background: #000;
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-douban:hover {
+    background: var(--card-accent);
+    color: #000;
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* ====== Mobile / Tablet Portrait (< 768px) ====== */
+/* 当屏幕较窄，无法容纳宽票根时，切换为垂直堆叠布局 */
+@media (max-width: 900px) {
+
+    /* 稍微调大断点，确保在中等屏幕也不挤 */
+    .card-film {
+        grid-column: span 1;
+        /* 恢复单列 */
+        min-height: auto;
+    }
+
+    .card-film-container {
+        flex-direction: column;
+        /* 移动端移除 Mask 或改为垂直 Mask? 
+           为简化，移动端移除 Mask 和中间分割线，变为上下结构 */
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+
+    .card-film-divider {
+        display: none;
+    }
+
+    .film-stub {
+        width: 100%;
+        height: 200px;
+        /* 固定高度的海报区 */
+        border-bottom: 2px dashed #000;
+        /* 移动端改为水平分割线 */
+    }
+
+    .film-main {
+        padding: 20px;
+    }
+
+    .film-title {
+        font-size: 1.5rem;
+    }
+
+    .btn-douban {
+        width: 100%;
+        /* 按钮全宽 */
+        justify-content: center;
+    }
+
+    .film-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

@@ -238,14 +238,33 @@ export const Parser = {
             const artist = parseField(trimmed, '作者');
             if (artist) { target.artist = artist; continue; }
 
-            const duration = parseField(trimmed, '歌曲时长');
-            if (duration) { target.duration = parseInt(duration, 10); continue; }
+            const duration = parseField(trimmed, '歌曲时长') || parseField(trimmed, '片长');
+            if (duration) { target.duration = duration; continue; }
 
             const album = parseField(trimmed, '专辑');
             if (album) { target.album = album; continue; }
 
-            const releaseTime = parseField(trimmed, '发行时间');
+            const releaseTime = parseField(trimmed, '发行时间') || parseField(trimmed, '上映日期') || parseField(trimmed, '上映年份');
             if (releaseTime) { target.releaseTime = releaseTime; continue; }
+
+            // Film fields
+            const director = parseField(trimmed, '导演');
+            if (director) { target.director = director; continue; }
+
+            const starring = parseField(trimmed, '主演');
+            if (starring) { target.starring = starring; continue; }
+
+            const region = parseField(trimmed, '制片国家/地区') || parseField(trimmed, '地区');
+            if (region) { target.region = region; continue; }
+
+            const language = parseField(trimmed, '语言');
+            if (language) { target.language = language; continue; }
+
+            const imdb = parseField(trimmed, 'IMDb');
+            if (imdb) { target.imdb = imdb; continue; }
+
+            const filmType = parseField(trimmed, '类型'); // Film genre
+            if (filmType) { target.tags = filmType; continue; }
 
             const audioPreview = parseField(trimmed, '音频预览');
             if (audioPreview) {
