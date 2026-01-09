@@ -260,6 +260,9 @@
     min-height: 0;
     overflow: hidden;
     /* 分隔线由左侧 .music-player 的 border-right 提供，此处不再重复 */
+
+    /* 封面尺寸变量 (Single Source of Truth) */
+    --cover-size: 48px;
 }
 
 /* 播放列表头部 */
@@ -321,7 +324,7 @@
 /* 单个播放项 */
 .playlist-item {
     display: grid;
-    grid-template-columns: 48px 1fr auto;
+    grid-template-columns: var(--cover-size) 1fr auto;
     align-items: center;
     gap: 12px;
     padding: 12px 20px;
@@ -350,16 +353,14 @@
 /* 播放项封面包装器 */
 .playlist-item-cover-wrapper {
     position: relative;
-    width: 48px;
-    height: 48px;
+    width: var(--cover-size);
+    height: var(--cover-size);
     border-radius: 2px;
     overflow: hidden;
     /* 裁剪溢出 */
     box-shadow: 2px 2px 0 var(--shadow);
     border: 2px solid var(--line);
     flex-shrink: 0;
-    /* 修复左侧可能出现的双重边框，因为 playlist 有 border-left */
-    /* 这里无需修复，因为 border-left 在 playlist 容器上 */
 }
 
 /* 播放项封面 */
@@ -531,6 +532,8 @@
         height: auto;
         max-height: 400px;
         border-left: none;
+        /* 移动端封面尺寸 */
+        --cover-size: 40px;
     }
 
     .playlist-header {
@@ -543,13 +546,7 @@
 
     .playlist-item {
         padding: 10px 16px;
-        grid-template-columns: 40px 1fr auto;
         gap: 10px;
-    }
-
-    .playlist-item-cover {
-        width: 40px;
-        height: 40px;
     }
 
     .playlist-item-title {
