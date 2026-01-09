@@ -23,8 +23,29 @@
     grid-template-columns: minmax(0, 1fr);
     /* 限制列宽防止内容溢出 */
     row-gap: 8px;
-    transition: box-shadow .15s, border-color .15s;
+    transition: box-shadow var(--duration-fast), border-color var(--duration-fast);
     box-shadow: 4px 4px 0 var(--shadow);
+}
+
+/* 通用交互：悬停强调 */
+.card:hover {
+    border-color: var(--card-accent, var(--line));
+    /* 默认回退到边框色，如果没有定义 accent */
+    box-shadow: var(--card-hover-shadow) color-mix(in srgb, var(--card-accent, var(--line)), transparent 40%);
+}
+
+/* 通用元信息样式 (Standardized Meta) */
+.card-meta {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Flex alignment if needed, but display property usually depends on context (flex vs grid item) */
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .card h3 {

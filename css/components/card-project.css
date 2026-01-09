@@ -1,12 +1,10 @@
 /* 项目卡片 */
 .card-project {
     gap: 0;
+    --card-accent: var(--accent-project);
 }
 
-.card-project:hover {
-    border-color: var(--accent-project);
-    box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-project), transparent 40%);
-}
+/* Base card handles hover */
 
 .card-project .card-header {
     margin-bottom: 8px;

@@ -44,6 +44,12 @@
     --fg: #f0f0f0;
     --muted: #9ca3af;
 
+    /* 交互动效标准化 */
+    --card-hover-scale: 1.03;
+    --card-hover-shadow: 4px 4px 0;
+    --duration-normal: 0.3s;
+    --duration-fast: 0.15s;
+
     /* 边框：白色（Neo-Brutalism 风格对称） */
     --line: #ffffff;
 

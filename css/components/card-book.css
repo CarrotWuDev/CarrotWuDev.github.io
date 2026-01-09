@@ -29,13 +29,10 @@
     /* 横向布局需要更宽的最小宽度 */
     min-height: 220px;
     /* 确保有足够高度容纳所有内容 */
+    --card-accent: var(--accent-book);
 }
 
-/* 悬停效果：边框变色 + 阴影变色（与其他卡片类型统一） */
-.card-book:hover {
-    border-color: var(--accent-book);
-    box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-book), transparent 40%);
-}
+/* 悬停效果：边框变色 + 阴影变色（交给 .card:hover 处理） */
 
 /* ====== 封面区域 ====== */
 
@@ -106,9 +103,6 @@
 .book-meta {
     grid-column: 2;
     grid-row: 2;
-
-    font-size: 13px;
-    color: var(--muted);
     display: flex;
     align-items: center;
     gap: 4px;

@@ -5,6 +5,11 @@
     padding-bottom: 16px;
     overflow: hidden;
 
+    /* 定义组件强调色 (用于 Base Card Hover) */
+    --card-accent: var(--accent-photo);
+
+    /* 
+
     /* 
      * [Layout Reset]
      * 脱离 .card 定义的 6 行 Subgrid 系统。
@@ -18,11 +23,7 @@
     height: 100%;
 }
 
-/* 照片卡片悬停效果 */
-.card-photo:hover {
-    border-color: var(--accent-photo);
-    box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-photo), transparent 40%);
-}
+/* 照片卡片悬停效果：交由 .card:hover 统一处理 */
 
 /* 照片图片 */
 .card-photo-img {
@@ -55,17 +56,7 @@
     color: var(--accent-photo);
 }
 
-.photo-meta {
-    color: var(--muted);
-    font-size: 13px;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+/* Meta info handled by .card-meta */
 
 /* ====== 照片图集 (Gallery) ====== */
 

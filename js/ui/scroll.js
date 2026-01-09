@@ -12,7 +12,7 @@
  * @param {HTMLElement} element - 可滚动的容器元素
  * @param {number} hideDelay - 停止滚动后隐藏滚动条的延迟（毫秒）
  */
-function attachScrollBehavior(element, hideDelay = 1000) {
+export function attachScrollBehavior(element, hideDelay = 1000) {
     if (!element) return;
 
     let timer = null;
@@ -40,8 +40,4 @@ export function initScrollbarBehavior() {
     // 主内容区滚动条
     const main = document.querySelector('.main');
     attachScrollBehavior(main, 1000);
-
-    // 音乐播放列表滚动条
-    const playlistContent = document.querySelector('.playlist-content');
-    attachScrollBehavior(playlistContent, 1000);
 }

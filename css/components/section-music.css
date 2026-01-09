@@ -288,26 +288,29 @@
 .playlist-content {
     flex: 1;
     overflow-y: auto;
-    /* Firefox: 细滚动条 */
-    scrollbar-width: thin;
-    /* Firefox: 默认透明，滚动时显示（通过 color 变化实现） */
-    scrollbar-color: transparent transparent;
+    /* Firefox: 细滚动条 - 暂时移除以保持 WebKit 样式一致性 */
+    /* scrollbar-width: thin; */
+    /* scrollbar-color: transparent transparent; */
 }
 
-/* Firefox: 滚动时显示滚动条 */
-.playlist-content[data-scrolling="true"] {
+/* Firefox: 滚动时显示滚动条 - 暂时移除 */
+/* .playlist-content[data-scrolling="true"] {
     scrollbar-color: var(--scrollbar-bg) transparent;
-}
+} */
 
 /* Webkit (Chrome/Safari): 滚动条轨道 */
 .playlist-content::-webkit-scrollbar {
     width: 6px;
 }
 
+.playlist-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 /* Webkit: 滑块默认透明 */
 .playlist-content::-webkit-scrollbar-thumb {
     background: transparent;
-    border-radius: 3px;
+    border-radius: 0;
     transition: background 0.3s;
 }
 

@@ -2,16 +2,13 @@
 .card-game {
     row-gap: 8px;
     overflow: hidden;
+    --card-accent: var(--accent-game);
 }
 
 .card-game.has-cover {
     padding-top: 0;
 }
 
-.card-game:hover {
-    border-color: var(--accent-game);
-    box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-game), transparent 40%);
-}
 
 .card-game h3 {
     white-space: nowrap;
@@ -26,15 +23,8 @@
 }
 
 .game-meta {
-    font-size: 12px;
-    color: var(--muted);
     grid-row: 3;
     /* 显式指定行：第3行 (Meta) */
-
-    /* 元信息过长时省略 */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .card-cover {

@@ -3,8 +3,7 @@ import { RenderService } from './ui/render.js';
 import { initTheme } from './ui/theme.js';
 import { initTooltip } from './ui/tooltip.js';
 import { initScrollbarBehavior } from './ui/scroll.js';
-import { AudioPlayer } from './ui/audio-player.js';
-import { initMusicLayout } from './ui/music-layout.js';
+import { AudioPlayer } from './ui/audio-player.js'; // Ensure this is the only copy
 
 /**
  * 应用程序入口
@@ -136,7 +135,7 @@ function initAudioPlayer() {
         AudioPlayer.init(playlist);
 
         // 初始化音乐区块布局同步（播放列表高度 = 播放器高度）
-        initMusicLayout();
+        // Now handled by MusicUI internally
     } catch (e) {
         console.error('[App] Failed to parse playlist data:', e);
     }
