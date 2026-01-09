@@ -22,9 +22,9 @@
     background: var(--bg);
     box-shadow: 4px 4px 0 var(--shadow);
     overflow: hidden;
-
-
-
+    /* 使用 start 对齐，让播放器保持自然高度作为基准 */
+    /* 播放列表高度由 JS (music-layout.js) 动态同步 */
+    align-items: start;
 }
 
 /* --- 左侧播放器 (Player Panel) --- */
@@ -165,10 +165,13 @@
     box-shadow: 3px 3px 0 var(--shadow);
 }
 
-.player-btn:hover {
-    border-color: var(--accent-music);
-    color: var(--accent-music);
-    box-shadow: 3px 3px 0 color-mix(in srgb, var(--accent-music), transparent 50%);
+/* 悬浮态：仅在支持真正悬停的设备上生效（避免移动端粘滞） */
+@media (hover: hover) {
+    .player-btn:hover {
+        border-color: var(--accent-music);
+        color: var(--accent-music);
+        box-shadow: 3px 3px 0 color-mix(in srgb, var(--accent-music), transparent 50%);
+    }
 }
 
 .player-btn:active {
@@ -194,14 +197,16 @@
     /* 始终白字 */
 }
 
-/* 播放按钮悬浮态 */
-.player-btn-play:hover {
-    background: var(--accent-music);
-    border-color: var(--accent-music);
-    color: white;
-    filter: brightness(1.1);
-    /* 轻微提亮 */
-    box-shadow: 3px 3px 0 color-mix(in srgb, var(--accent-music), transparent 50%);
+/* 播放按钮悬浮态：仅在支持真正悬停的设备上生效 */
+@media (hover: hover) {
+    .player-btn-play:hover {
+        background: var(--accent-music);
+        border-color: var(--accent-music);
+        color: white;
+        filter: brightness(1.1);
+        /* 轻微提亮 */
+        box-shadow: 3px 3px 0 color-mix(in srgb, var(--accent-music), transparent 50%);
+    }
 }
 
 /* 播放按钮点击态 */
@@ -226,9 +231,11 @@
     transition: color 0.15s, border-color 0.15s;
 }
 
-.player-link:hover {
-    color: var(--accent-music);
-    border-color: var(--accent-music);
+@media (hover: hover) {
+    .player-link:hover {
+        color: var(--accent-music);
+        border-color: var(--accent-music);
+    }
 }
 
 .player-link::after {
@@ -247,8 +254,12 @@
 .music-playlist {
     display: flex;
     flex-direction: column;
-    max-height: 500px;
+    /* max-height 由 JS (music-layout.js) 动态设置为播放器高度 */
+    /* 移除 height: 100%，让 max-height 控制高度 */
+    /* min-height: 0 防止 Flex/Grid 溢出问题 */
+    min-height: 0;
     overflow: hidden;
+    /* 分隔线由左侧 .music-player 的 border-right 提供，此处不再重复 */
 }
 
 /* 播放列表头部 */
@@ -274,17 +285,37 @@
 .playlist-content {
     flex: 1;
     overflow-y: auto;
+    /* Firefox: 细滚动条 */
     scrollbar-width: thin;
+    /* Firefox: 默认透明，滚动时显示（通过 color 变化实现） */
+    scrollbar-color: transparent transparent;
+}
+
+/* Firefox: 滚动时显示滚动条 */
+.playlist-content[data-scrolling="true"] {
     scrollbar-color: var(--scrollbar-bg) transparent;
 }
 
+/* Webkit (Chrome/Safari): 滚动条轨道 */
 .playlist-content::-webkit-scrollbar {
     width: 6px;
 }
 
+/* Webkit: 滑块默认透明 */
 .playlist-content::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-bg);
+    background: transparent;
     border-radius: 3px;
+    transition: background 0.3s;
+}
+
+/* Webkit: 滚动时显示滑块 */
+.playlist-content[data-scrolling="true"]::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-bg);
+}
+
+/* Webkit: 鼠标悬停在滑块上时保持显示 */
+.playlist-content::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-bg) !important;
 }
 
 /* 单个播放项 */
@@ -298,8 +329,10 @@
     transition: background 0.15s;
 }
 
-.playlist-item:hover {
-    background: var(--bg-subtle);
+@media (hover: hover) {
+    .playlist-item:hover {
+        background: var(--bg-subtle);
+    }
 }
 
 /* 当前选中的歌曲（暂停状态） */
@@ -325,6 +358,8 @@
     box-shadow: 2px 2px 0 var(--shadow);
     border: 2px solid var(--line);
     flex-shrink: 0;
+    /* 修复左侧可能出现的双重边框，因为 playlist 有 border-left */
+    /* 这里无需修复，因为 border-left 在 playlist 容器上 */
 }
 
 /* 播放项封面 */
@@ -491,9 +526,11 @@
         align-items: center;
     }
 
-    /* 播放列表高度限制 */
+    /* 播放列表高度限制 - 移动端需要限制高度，否则无限长 */
     .music-playlist {
-        max-height: 300px;
+        height: auto;
+        max-height: 400px;
+        border-left: none;
     }
 
     .playlist-header {

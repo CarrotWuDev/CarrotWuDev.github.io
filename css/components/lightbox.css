@@ -68,6 +68,8 @@
     line-height: 1;
 }
 
-.lightbox-close:hover {
-    opacity: 1;
+@media (hover: hover) {
+    .lightbox-close:hover {
+        opacity: 1;
+    }
 }

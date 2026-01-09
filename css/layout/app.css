@@ -112,13 +112,7 @@
     object-fit: cover;
     border: 2px solid var(--line);
     box-shadow: 4px 4px 0 var(--shadow);
-    cursor: pointer;
-    /* 可点击 */
-    transition: transform 0.1s;
-}
-
-.avatar:active {
-    transform: scale(0.95);
+    /* 纯展示元素，无点击交互 */
 }
 
 .profile-info {
@@ -157,15 +151,18 @@ nav a {
     padding: 10px 14px;
     font-size: 15px;
     font-weight: 600;
-    color: var(--muted);
+    /* 常态与悬浮态统一使用前景色，保持高对比度 */
+    color: var(--fg);
     border: 2px solid transparent;
     /* 预留边框位置防止抖动 */
     transition: all .15s;
 }
 
-nav a:hover {
-    color: var(--fg);
-    background: rgba(15, 23, 42, 0.05);
+@media (hover: hover) {
+    nav a:hover {
+        color: var(--fg);
+        background: rgba(15, 23, 42, 0.05);
+    }
 }
 
 nav a[aria-current="true"] {
@@ -255,8 +252,10 @@ nav a[aria-current="true"][data-type="default"] {
     transition: color .15s;
 }
 
-.social a:hover {
-    color: var(--fg);
+@media (hover: hover) {
+    .social a:hover {
+        color: var(--fg);
+    }
 }
 
 /* Sidebar Footer (Slogan + Copyright) */
@@ -297,10 +296,11 @@ nav a[aria-current="true"][data-type="default"] {
     align-items: center;
 }
 
-.theme-toggle:hover {
-    color: var(--fg);
-    background: transparent;
-    /* 移除之前的背景色变化 */
+@media (hover: hover) {
+    .theme-toggle:hover {
+        color: var(--fg);
+        background: transparent;
+    }
 }
 
 .theme-toggle svg {

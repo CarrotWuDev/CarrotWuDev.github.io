@@ -4,6 +4,7 @@ import { initTheme } from './ui/theme.js';
 import { initTooltip } from './ui/tooltip.js';
 import { initScrollbarBehavior } from './ui/scroll.js';
 import { AudioPlayer } from './ui/audio-player.js';
+import { initMusicLayout } from './ui/music-layout.js';
 
 /**
  * 应用程序入口
@@ -120,7 +121,6 @@ function setupScrollSpy() {
 function initAudioPlayer() {
     const musicSection = document.querySelector('.music-section');
     if (!musicSection) {
-        console.log('[App] No music section found, skipping AudioPlayer init');
         return;
     }
 
@@ -134,6 +134,9 @@ function initAudioPlayer() {
     try {
         const playlist = JSON.parse(playlistData);
         AudioPlayer.init(playlist);
+
+        // 初始化音乐区块布局同步（播放列表高度 = 播放器高度）
+        initMusicLayout();
     } catch (e) {
         console.error('[App] Failed to parse playlist data:', e);
     }

@@ -307,15 +307,65 @@ export const RenderService = {
     },
 
     /**
-     * 设置 SEO 信息
+     * 设置 SEO 信息（标题、描述、网站图标）
+     * @param {Object} blogInfo - 博客信息对象
      */
     updateSEO(blogInfo) {
         if (!blogInfo) return;
-        if (blogInfo.title) document.title = blogInfo.title;
+
+        // 设置页面标题
+        if (blogInfo.title) {
+            document.title = blogInfo.title;
+        }
+
+        // 设置页面描述
         if (blogInfo.desc) {
             const meta = document.querySelector('meta[name="description"]');
             if (meta) meta.content = blogInfo.desc;
         }
+
+        // 动态设置 Favicon
+        if (blogInfo.favicon) {
+            this.setFavicon(blogInfo.favicon);
+        }
+    },
+
+    /**
+     * 动态设置网站图标（Favicon）
+     * @param {string} faviconUrl - 图标 URL
+     */
+    setFavicon(faviconUrl) {
+        if (!faviconUrl) return;
+
+        // 移除可能存在的旧 favicon link 标签
+        const existingLinks = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]');
+        existingLinks.forEach(link => link.remove());
+
+        // 创建新的 favicon link 标签
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.type = this.getFaviconMimeType(faviconUrl);
+        link.href = faviconUrl;
+        document.head.appendChild(link);
+    },
+
+    /**
+     * 根据文件扩展名返回 MIME 类型
+     * @param {string} url - 图标 URL
+     * @returns {string} MIME 类型
+     */
+    getFaviconMimeType(url) {
+        const ext = url.split('.').pop().toLowerCase();
+        const mimeTypes = {
+            'ico': 'image/x-icon',
+            'png': 'image/png',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'svg': 'image/svg+xml',
+            'gif': 'image/gif',
+            'webp': 'image/webp'
+        };
+        return mimeTypes[ext] || 'image/png';
     },
 
     /**
@@ -375,13 +425,12 @@ export const RenderService = {
 
     renderProfile(info) {
         if (!info) return;
-        // Header
+
+        // 头像（纯展示，无点击交互）
         if (info.avatar) {
             const avatar = document.getElementById('avatar');
             avatar.src = info.avatar;
-            avatar.classList.add('lightbox-trigger');
-            avatar.dataset.src = info.avatar;
-            avatar.dataset.caption = info.name || '头像';
+            avatar.alt = info.name || '头像';
         }
         if (info.name) document.getElementById('profileName').textContent = info.name;
 

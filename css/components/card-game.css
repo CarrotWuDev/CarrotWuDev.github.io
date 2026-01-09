@@ -13,8 +13,6 @@
     box-shadow: 4px 4px 0 color-mix(in srgb, var(--accent-game), transparent 40%);
 }
 
-
-
 .card-game h3 {
     white-space: nowrap;
     overflow: hidden;
@@ -89,8 +87,6 @@
 .card-game:hover .review {
     border-color: var(--accent-game);
 }
-
-
 
 /* 游戏卡片悬停：标签变强调色 */
 .card-game:hover .tag {

@@ -7,7 +7,6 @@ export const DataService = {
      * 加载所有站点数据 (配置 + 各分类内容)
      */
     async loadSiteData() {
-        console.log('Loading config...');
         const configRes = await fetch(CONFIG_URL);
         if (!configRes.ok) throw new Error(`Failed to load config: ${configRes.status}`);
 

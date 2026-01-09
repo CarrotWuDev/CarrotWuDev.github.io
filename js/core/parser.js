@@ -30,6 +30,16 @@ export const Parser = {
                 const desc = parseField(trimmed, '网站描述');
                 if (desc) config.blogInfo.desc = desc;
 
+                // 解析网站图标（favicon）- 使用与头像相同的 markdown 图片语法解析
+                const favicon = parseField(trimmed, '网站图标');
+                if (favicon) {
+                    const m = favicon.match(/^!\[.*?\]\((.*?)\)$/);
+                    let url = m ? m[1] : favicon;
+                    // 处理相对路径：../assets → assets（从项目根目录开始）
+                    if (url.startsWith('../')) url = url.substring(3);
+                    config.blogInfo.favicon = url;
+                }
+
                 const slogan = parseField(trimmed, '标语');
                 if (slogan) config.blogInfo.slogan = slogan;
 
