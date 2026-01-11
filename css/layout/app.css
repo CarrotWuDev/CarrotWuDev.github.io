@@ -16,7 +16,10 @@
     padding: 24px 18px;
     display: flex;
     flex-direction: column;
+    /* gap: 24px;  <-- 删除 gap，改由内部元素 margin/padding 控制，或者保留 gap 但需注意 spacing */
     gap: 24px;
+    /* 关键：限制高度为视口高度，并在内部处理滚动 */
+    height: 100vh;
     overflow: hidden;
     background: var(--bg);
 }
@@ -96,6 +99,8 @@
     flex-direction: column;
     padding-bottom: 20px;
     border-bottom: 2px solid var(--line);
+    /* 防止被压缩 */
+    flex-shrink: 0;
 }
 
 /* 顶部：头像 + 信息 */
@@ -144,6 +149,19 @@ nav {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    /* 方案B关键：占据剩余空间，内容溢出时滚动 */
+    flex: 1;
+    overflow-y: auto;
+    /* 隐藏滚动条 */
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
+}
+
+/* 隐藏滚动条 (Chrome/Safari/Webkit) */
+nav::-webkit-scrollbar {
+    display: none;
 }
 
 nav a {
@@ -260,6 +278,7 @@ nav a[aria-current="true"][data-type="default"] {
 
 /* Sidebar Footer (Slogan + Copyright) */
 .sidebar-footer {
+    /* margin-top: auto; <-- 由于 Nav 已经是 flex: 1，这里其实不再强制需要 auto，但在某些特定高度下保留也无妨 */
     margin-top: auto;
     padding-top: 20px;
     border-top: 2px solid var(--line);
@@ -270,7 +289,8 @@ nav a[aria-current="true"][data-type="default"] {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    /* 紧凑间距 */
+    /* 防止被压缩 */
+    flex-shrink: 0;
 }
 
 .sidebar-footer footer {

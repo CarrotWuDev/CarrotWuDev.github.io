@@ -21,6 +21,14 @@
     --accent-film: #a855f7;
     /* Purple-500: 电影专属 */
 
+    /* 电影票卡片 (Film Ticket Card) */
+    --film-ticket-bg: var(--bg);
+    --film-ticket-border: #000000;
+    --film-ticket-divider: #000000;
+    --film-title-color: #000000;
+    --film-meta-color: #555555;
+    --film-quote-color: #444444;
+
     /* 间距 */
     --space-page: 32px;
     --space-section: 48px;
@@ -38,7 +46,7 @@
     --space-section-mobile: 32px;
 
     /* 交互动效 (默认) */
-    --card-hover-scale: 1.03;
+
     --card-hover-shadow: 4px 4px 0;
     --duration-normal: 0.3s;
     --duration-fast: 0.15s;
@@ -53,7 +61,7 @@
     --muted: #9ca3af;
 
     /* 交互动效标准化 */
-    --card-hover-scale: 1.03;
+
     --card-hover-shadow: 4px 4px 0;
     --duration-normal: 0.3s;
     --duration-fast: 0.15s;
@@ -66,4 +74,12 @@
 
     /* 滚动条颜色 (中性深灰) */
     --scrollbar-bg: #525252;
+
+    /* 电影票卡片 (Film Ticket Card) - 暗色模式 */
+    /* --film-ticket-bg 已通过 var(--bg) 自动继承，无需重复定义 */
+    --film-ticket-border: #ffffff;
+    --film-ticket-divider: #ffffff;
+    --film-title-color: #f0f0f0;
+    --film-meta-color: #9ca3af;
+    --film-quote-color: #d1d5db;
 }

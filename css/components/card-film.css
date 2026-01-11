@@ -4,7 +4,7 @@
     --stub-width: 140px;
     --hole-size: 20px;
     --hole-radius: calc(var(--hole-size) / 2);
-    --ticket-bg: #fff;
+    --ticket-bg: var(--film-ticket-bg);
     --border-width: 2px;
     /* 与 .card 边框宽度保持一致 */
     --card-accent: var(--accent-film);
@@ -14,20 +14,15 @@
     display: flex;
     /* 覆盖 .card 的 display:grid */
     position: relative;
-    overflow: visible;
+
 
     /* 重置基础卡片样式，电影卡片使用独立的布局结构 */
     background: transparent;
     border: none;
     padding: 0;
 
-    /* 
-     * 阴影放在父元素 .card-film 上，而不是 .card-film-container 上
-     * 原因：.card-film-container 使用了 CSS mask，会影响 box-shadow 的渲染
-     * 这与其他卡片类型（阴影在 .card 元素上）保持一致的实现结构
-     */
-    box-shadow: 4px 4px 0 var(--shadow);
-    transition: box-shadow var(--duration-fast);
+    box-shadow: none;
+    transition: none;
 
     /* 布局修复: 默认跨两列以保证票面宽度 */
     /* 注意: .cards 定义了 grid-template-columns: repeat(auto-fill, ...).
@@ -45,7 +40,7 @@
     width: 100%;
     height: 100%;
     background: var(--ticket-bg);
-    border: var(--border-width) solid #000;
+    border: var(--border-width) solid var(--film-ticket-border);
     position: relative;
 
     /* Masking for Holes */
@@ -73,9 +68,8 @@
 
 /* 悬浮状态：阴影和边框变化 */
 .card-film:hover {
-    z-index: 10;
-    /* 阴影在父元素上，与其他卡片保持一致 */
-    box-shadow: var(--card-hover-shadow) color-mix(in srgb, var(--card-accent), transparent 40%);
+
+    box-shadow: none;
 }
 
 .card-film:hover .card-film-container {
@@ -102,7 +96,7 @@
     top: var(--hole-radius);
     bottom: var(--hole-radius);
     width: 0;
-    border-left: 2px dashed #000;
+    border-left: 2px dashed var(--film-ticket-divider);
     z-index: 5;
 }
 
@@ -124,11 +118,12 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: grayscale(20%);
-    transition: filter 0.3s;
+    filter: grayscale(100%);
+    transition: transform 0.3s ease, filter 0.3s ease;
 }
 
 .card-film:hover .film-poster {
+    transform: scale(1.03);
     filter: grayscale(0%);
 }
 
@@ -137,14 +132,15 @@
     top: 15px;
     left: -5px;
     background: var(--card-accent);
-    color: #000;
+    color: var(--film-title-color);
     font-family: var(--font-mono);
     font-weight: 900;
     font-size: 0.8rem;
     text-transform: uppercase;
     padding: 4px 12px;
-    border: 2px solid #000;
+    border: 2px solid var(--film-ticket-border);
     transform: rotate(-15deg);
+    will-change: transform;
     box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
     z-index: 6;
 }
@@ -163,12 +159,20 @@
     font-weight: 900;
     margin: 0 0 8px 0;
     line-height: 1.1;
-    color: #000;
+    color: var(--film-title-color);
+    transition: color 0.15s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-film:hover .film-title {
+    color: var(--card-accent);
 }
 
 .film-meta-row {
     font-family: var(--font-mono);
-    color: #555;
+    color: var(--film-meta-color);
     font-size: 0.9rem;
     margin-bottom: 20px;
     display: flex;
@@ -180,28 +184,68 @@
     display: grid;
     gap: 6px;
     margin-bottom: 20px;
-    font-size: 0.95rem;
-    border-top: 2px solid #eee;
-    padding-top: 12px;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--fg);
+}
+
+.film-credit-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.5;
 }
 
 .film-credit-line strong {
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    margin-right: 6px;
-    color: #000;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-right: 4px;
+    color: var(--fg);
 }
 
-.film-quote {
-    font-family: serif;
+.film-credit-line.film-director {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.film-credit-line.film-starring {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 3em;
+    /* 2 lines * 1.5 */
+}
+
+.film-review {
+    background: var(--bg-subtle);
+    padding: 10px 12px;
+    font-size: 13px;
     font-style: italic;
-    font-size: 1.1rem;
-    color: #444;
-    border-left: 4px solid var(--card-accent);
-    padding-left: 16px;
+    color: var(--muted);
+    line-height: 1.5;
+    border-left: 3px solid var(--line);
+    transition: border-color .15s;
     margin-bottom: 20px;
-    line-height: 1.4;
+}
+
+.film-review p {
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 3em;
+    /* 2 lines * 1.5 */
+}
+
+.card-film:hover .film-review {
+    border-color: var(--card-accent);
 }
 
 .film-footer {
@@ -218,39 +262,37 @@
     flex-wrap: wrap;
 }
 
-.tag.film-tag {
-    background: #000;
-    color: #fff;
-    border: 1px solid #000;
+.film-tags .tag {
+    background: var(--bg);
+    color: var(--fg);
+    border: 2px solid var(--line);
     font-size: 12px;
-    padding: 2px 8px;
+    padding: 4px 10px;
+    box-shadow: 2px 2px 0 var(--shadow);
 }
 
-.card-film:hover .tag.film-tag {
-    background: var(--card-accent);
-    color: #000;
+.card-film:hover .film-tags .tag {
+    border-color: var(--card-accent);
 }
 
 .btn-douban {
     display: inline-flex;
     align-items: center;
-    height: 32px;
-    padding: 0 16px;
-    background: #000;
-    color: #fff;
-    font-weight: 700;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
     text-decoration: none;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    transition: all 0.2s;
+    transition: color var(--duration-fast);
     white-space: nowrap;
 }
 
+.btn-douban::after {
+    content: '→';
+}
+
 .btn-douban:hover {
-    background: var(--card-accent);
-    color: #000;
-    transform: translate(-2px, -2px);
-    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+    color: var(--card-accent);
 }
 
 /* ====== Mobile / Tablet Portrait (< 768px) ====== */
@@ -280,7 +322,7 @@
         width: 100%;
         height: 200px;
         /* 固定高度的海报区 */
-        border-bottom: 2px dashed #000;
+        border-bottom: 2px dashed var(--film-ticket-divider);
         /* 移动端改为水平分割线 */
     }
 

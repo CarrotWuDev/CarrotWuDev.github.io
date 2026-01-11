@@ -159,6 +159,11 @@ export const MusicUI = {
                 artist.textContent = track.artist || '未知艺术家';
                 artist.setAttribute('data-tooltip', track.artist || '未知艺术家');
             }
+
+            // 内容变更后，重新计算是否需要跑马灯
+            // 使用 setTimeout 确保 DOM 渲染完成（特别是字体加载和布局计算）
+            setTimeout(() => this.checkMarquee(), 50);
+
             if (durationEl) durationEl.textContent = this.formatDuration(duration || track.duration);
             if (link) link.href = track.linkUrl || '#';
 
@@ -304,11 +309,21 @@ export const MusicUI = {
         state.mobileQuery = window.matchMedia('(max-width: 767px)');
 
         state.resizeObserver = new ResizeObserver(() => {
-            window.requestAnimationFrame(() => this.syncLayoutHeight());
+            window.requestAnimationFrame(() => {
+                this.syncLayoutHeight();
+                this.checkMarquee(); // Resize 时重新检查跑马灯
+            });
+        });
+
+        // 监听移动端切换，重新检查
+        state.mobileQuery.addEventListener('change', (e) => {
+            this.handleMediaChange(e);
+            // 稍作延迟等待布局稳定
+            setTimeout(() => this.checkMarquee(), 100);
         });
 
         state.resizeObserver.observe(state.player);
-        state.mobileQuery.addEventListener('change', (e) => this.handleMediaChange(e));
+
 
         this.syncLayoutHeight();
 
@@ -340,6 +355,86 @@ export const MusicUI = {
         if (this.layoutState.playlist) {
             this.layoutState.playlist.style.maxHeight = '';
         }
+    },
+
+    /**
+     * 检测并应用跑马灯效果 (Marquee)
+     * 仿 Apple Music 逻辑：内容溢出时无缝滚动
+     */
+    checkMarquee() {
+        const state = this.layoutState;
+        if (!state.player) return;
+
+        // 获取需要检查的元素
+        const targets = [
+            state.player.querySelector('.player-title'),
+            state.player.querySelector('.player-artist')
+        ];
+
+        targets.forEach(el => {
+            if (!el) return;
+
+            // 1. 清理旧状态 (Reset)
+            el.classList.remove('is-marquee');
+            // 移除可能已经存在的克隆副本 (clone)
+            const oldClone = el.querySelector('.marquee-clone');
+            if (oldClone) {
+                // 如果有克隆，说明之前已经是 marquee 状态，需要恢复原始文本结构以便重新测量
+                // 原始文本其实在父级 textContent 里也有，或者在第一个 textNode
+                // 简单粗暴的做法：重置 innerHTML 为纯文本，但得知道纯文本是啥
+                // 更稳妥：我们在 dataset 存了原始文本，或者直接读取第一个 child
+                // 但由于我们 initLayout/render 时结构是简单的，这里我们先暴力重置：
+                // 如果是 marquee 结构，innerHTML 类似于 "<span>text</span><span clone>text</span>"
+                // 取第一个 span 的内容即可
+                const originalText = el.querySelector('span')?.textContent || el.textContent;
+                el.innerHTML = originalText;
+            }
+
+            // 2. 测量 (Measure)
+            // 必须先确保 overflow 状态被重置以便测量自然宽度
+            // 但我们在 CSS 里已经设置了 max-width: 100% 和 overflow: hidden
+            // scrollWidth 代表内容真实宽度，offsetWidth 代表容器可见宽度
+            const containerWidth = el.offsetWidth;
+            const contentWidth = el.scrollWidth;
+
+            // 阈值：只有由于省略号导致 scrollWidth > offsetWidth 时才滚动
+            // 注意：当 text-overflow: ellipsis 生效时，scrollWidth 通常会大于 offsetWidth
+            // 或者我们可以比较：el.scrollWidth > el.clientWidth
+
+            // 更精确的方法：创建一个临时 span 测文字宽度
+            // 或者利用现有的 DOM，如果 scrollWidth > clientWidth 说明溢出了
+            if (contentWidth > containerWidth) {
+                this.applyMarquee(el);
+            }
+        });
+    },
+
+    applyMarquee(el) {
+        // 1. 包装原始内容
+        const text = el.textContent.trim();
+        el.innerHTML = ''; // 清空
+        el.classList.add('is-marquee');
+
+        // 2. 创建滚动容器 Wrapper (用于位移)
+        const wrapper = document.createElement('div');
+        wrapper.className = 'marquee-wrapper';
+
+        // 3. 创建第一份文本
+        const textSpan1 = document.createElement('span');
+        textSpan1.textContent = text;
+        textSpan1.className = 'marquee-text';
+        wrapper.appendChild(textSpan1);
+
+        // 4. 创建间隔 (Gap) 和 第二份文本 (Clone)
+        // 只有当确认为 marquee 时才添加 clone
+        const textSpan2 = document.createElement('span');
+        textSpan2.textContent = text;
+        textSpan2.className = 'marquee-text marquee-clone';
+        // aria-hidden 避免屏幕阅读器读两遍
+        textSpan2.setAttribute('aria-hidden', 'true');
+        wrapper.appendChild(textSpan2);
+
+        el.appendChild(wrapper);
     },
 
     // --- Utils ---

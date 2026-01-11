@@ -61,7 +61,7 @@
     color: var(--fg);
     margin: 0;
 
-    /* 标题过长时省略 */
+    /* 标题过长时省略 - 默认状态 */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -76,6 +76,71 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+}
+
+/* === Marquee (跑马灯) 激活态 === */
+.player-title.is-marquee,
+.player-artist.is-marquee {
+    /* 移除省略号，允许内容溢出容器（但在父级被 hidden 切断） */
+    text-overflow: clip;
+    /* 也是为了方便测量，虽然 JS 已经测量过了 */
+    display: block;
+
+    /* 仅在滚动时启用渐变遮罩 */
+    mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+}
+
+/* 滚动容器 */
+.marquee-wrapper {
+    display: inline-flex;
+    /* 让内部文本一行排列 */
+    white-space: nowrap;
+    will-change: transform;
+    /* initial pause: 2s (通过 animation-delay 控制有点难，因为是循环) 
+       Apple Music 做法：
+       animation: marquee-scroll 10s linear infinite;
+       animation-delay: 2s; (只对第一次有效)
+       为了实现每次循环都停顿，通常需要 keyframes 里做手脚，或者 JS 控制
+       这里采用：第一次延迟 2s，后续无缝匀速
+    */
+    animation: marquee-scroll 12s linear infinite;
+    animation-delay: 2s;
+    /* 启动延迟 */
+    /* 鼠标悬停时暂停 */
+}
+
+@media (hover: hover) {
+    .marquee-wrapper:hover {
+        animation-play-state: paused;
+    }
+}
+
+/* 文本本体与克隆体 */
+.marquee-text {
+    padding-right: 48px;
+    /* Gap: 留白间距 */
+}
+
+@keyframes marquee-scroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        /* 移动距离 = -(一个文本宽度 + 一个Gap) = -50% (因为有两个相同的文本+Gap，总宽是 200%) */
+        /* 不对，wrapper 宽度是内容的 2 倍。我们需要移动 -50% 吗？
+           DOM 结构: wrapper [text1(100px) + gap(50px)] [text2(100px) + gap(50px)]
+           Wrapper 总宽 300px。
+           我们需要让 text2 移动到 text1 的位置。
+           也就移动 -(text1 + gap) 的距离。
+           由于 wrapper 是 inline-flex，它的宽度由内容撑开。
+           translate(-50%) 是相对于 wrapper 自身宽度的 50%。
+           正好就是移动了一半（即一组 text+gap）。完美！
+        */
+        transform: translateX(-50%);
+    }
 }
 
 /* 进度条区域 */
@@ -499,8 +564,10 @@
 @media (max-width: 767px) {
 
     /* 改为垂直堆叠布局 */
+    /* 改为垂直堆叠布局 */
     .music-section {
-        grid-template-columns: 1fr;
+        /* fix: 使用 minmax(0, 1fr) 强制让轨道可收缩，防止长文本撑开 Grid 容器 */
+        grid-template-columns: minmax(0, 1fr);
     }
 
     /* 播放器调整 */
@@ -519,11 +586,15 @@
     .player-title {
         font-size: 16px;
         text-align: center;
+        /* fix: 防止 align-items: center (shrink-to-fit) 导致长文本溢出 */
+        max-width: 100%;
     }
 
     .player-artist {
         font-size: 13px;
         text-align: center;
+        /* fix: 防止 align-items: center (shrink-to-fit) 导致长文本溢出 */
+        max-width: 100%;
     }
 
     .player-info {

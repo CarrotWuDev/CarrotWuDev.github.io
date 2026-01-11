@@ -168,7 +168,8 @@ export const CardRenderer = {
         if (it.region) metaParts.push(it.region);
         if (it.duration) metaParts.push(`${it.duration}分钟`);
         if (it.releaseDate) {
-            const yearStr = it.releaseDate.match(/^\d{4}/) ? it.releaseDate.match(/^\d{4}/)[0] : '';
+            const match = it.releaseDate.match(/^\d{4}/);
+            const yearStr = match ? match[0] : '';
             if (yearStr) metaParts.push(yearStr);
         }
         const metaStr = metaParts.join(' &bull; ');
@@ -187,26 +188,22 @@ export const CardRenderer = {
 
                 <!-- Main -->
                 <div class="film-main">
-                    <div class="film-info">
-                        <h3 class="film-title" data-tooltip="${it.title}">${it.title}</h3>
-                        <div class="film-meta-row">${metaStr}</div>
-                        
-                        <div class="film-credits">
-                            ${it.director ? `<div class="film-credit-line"><strong>DIRECTOR:</strong> ${it.director}</div>` : ''}
-                            ${it.starring ? `<div class="film-credit-line"><strong>STARRING:</strong> ${it.starring}</div>` : ''}
-                        </div>
-                        
-                        ${it.review ? `<div class="film-quote">“${it.review}”</div>` : ''}
+                    <h3 class="film-title" data-tooltip="${it.title}">${it.title}</h3>
+                    <div class="film-meta-row">${metaStr}</div>
+                    
+                    <div class="film-credits">
+                        ${it.director ? `<div class="film-credit-line film-director" data-tooltip="${it.director}"><strong>导演：</strong>${it.director}</div>` : ''}
+                        ${it.starring ? `<div class="film-credit-line film-starring" data-tooltip="${it.starring}"><strong>主演：</strong>${it.starring}</div>` : ''}
                     </div>
+                    
+                    ${it.review ? `<div class="film-review"><p data-tooltip="${it.review}">${it.review}</p></div>` : ''}
 
                     <div class="film-footer">
-                        <div class="film-tags">
-                            ${it.tags ? it.tags.split(/[、,，]/).map(t => `<span class="tag film-tag">${t.trim()}</span>`).join('') : ''}
-                        </div>
+                        ${this.renderTags(it.tags, 'film-tags')}
                         
                         ${it.linkUrl ? `
                             <div class="film-actions">
-                                <a href="${it.linkUrl}" target="_blank" class="btn-douban">DOUBAN ↗</a>
+                            <a href="${it.linkUrl}" target="_blank" class="btn-douban">豆瓣</a>
                             </div>
                         ` : ''}
                     </div>
