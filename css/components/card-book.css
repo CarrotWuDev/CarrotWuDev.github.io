@@ -37,10 +37,6 @@
 /* ====== 封面区域 ====== */
 
 .book-cover {
-    grid-column: 1;
-    grid-row: 1 / -1;
-    /* 从第1行到最后一行（跨全部5行） */
-
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -53,6 +49,36 @@
 .card-book:hover .book-cover {
     transform: scale(1.03);
     filter: grayscale(0);
+}
+
+/* --- 封面区域包裹容器 --- */
+.book-cover-wrapper {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    /* 从第1行到最后一行（跨全部5行） */
+    position: relative;
+    overflow: hidden;
+}
+
+
+
+/* --- 状态标签 (斜贴贴纸风格) --- */
+.book-status {
+    position: absolute;
+    top: 12px;
+    left: -5px;
+    background: var(--card-accent);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-weight: 900;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border: 2px solid var(--line);
+    transform: rotate(-15deg);
+    will-change: transform;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+    z-index: 6;
 }
 
 /* ====== 内容区域 ====== */
@@ -217,10 +243,14 @@
         min-height: unset;
     }
 
-    /* 封面：改为顶部横向展示 */
-    .book-cover {
+    /* 封面包裹容器：移动端适配 */
+    .book-cover-wrapper {
         grid-column: 1;
         grid-row: 1;
+    }
+
+    /* 封面：改为顶部横向展示 */
+    .book-cover {
         width: 100%;
         height: 160px;
         object-fit: cover;

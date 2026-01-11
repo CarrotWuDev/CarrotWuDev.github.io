@@ -77,10 +77,19 @@ export const CardRenderer = {
     cardBook(it) {
         // 作者 · 出版年份
         const meta = [it.author, it.publishYear].filter(Boolean).join(' <span class="dot">&bull;</span> ');
+
+        // 封面区域：包含封面图片和状态标签
+        const coverSection = it.cover ? `
+            <div class="book-cover-wrapper">
+                <img class="book-cover" src="${it.cover}" loading="lazy" alt="${it.title} 封面">
+                ${it.status ? `<div class="book-status">${it.status}</div>` : ''}
+            </div>
+        ` : '';
+
         return `
         <div class="card card-book ${it.cover ? 'has-cover' : ''}">
-            ${it.cover ? `<img class="book-cover" src="${it.cover}" loading="lazy" alt="${it.title} 封面">` : ''}
-            ${this.renderHeader(it.title, it.status)}
+            ${coverSection}
+            ${this.renderHeader(it.title)}
             <div class="card-meta book-meta" data-tooltip="${[it.author, it.publishYear].filter(Boolean).join(' • ')}">${meta || '&nbsp;'}</div>
             ${this.renderTags(it.tags, 'book-tags')}
             ${it.review ? `<div class="book-review"><p data-tooltip="${it.review}">${it.review}</p></div>` : '<div class="book-review">&nbsp;</div>'}
@@ -90,10 +99,19 @@ export const CardRenderer = {
 
     cardGame(it) {
         const meta = [it.dev, it.platform, it.releaseDate].filter(Boolean).join(' <span class="dot">&bull;</span> ');
+
+        // 封面区域：包含封面图片和状态标签
+        const coverSection = it.cover ? `
+            <div class="game-cover-wrapper">
+                <img class="card-cover" src="${it.cover}" loading="lazy" alt="封面">
+                ${it.status ? `<div class="game-status">${it.status}</div>` : ''}
+            </div>
+        ` : '';
+
         return `
         <div class="card card-game ${it.cover ? 'has-cover' : ''}">
-            ${it.cover ? `<img class="card-cover" src="${it.cover}" loading="lazy" alt="封面">` : ''}
-            ${this.renderHeader(it.title, it.status)}
+            ${coverSection}
+            ${this.renderHeader(it.title)}
             <div class="card-meta game-meta" data-tooltip="${[it.dev, it.platform, it.releaseDate].filter(Boolean).join(' • ')}">${meta || '&nbsp;'}</div>
             
             ${this.renderTags(it.tags || it.gameType, 'game-tags')}
