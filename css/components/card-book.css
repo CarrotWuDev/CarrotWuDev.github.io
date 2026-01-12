@@ -83,8 +83,8 @@
 
 /* ====== 内容区域 ====== */
 
-/* 内容区公共样式：右侧内边距 */
-.card-book> :not(.book-cover) {
+/* 内容区公共样式：左右内边距（排除封面容器） */
+.card-book> :not(.book-cover-wrapper) {
     padding-left: 16px;
     padding-right: 16px;
 }
@@ -170,7 +170,7 @@
 
     background: var(--bg-subtle);
     /* 保持与其他内容区域相同的左右间距（继承自父级选择器） */
-    /* padding-left/right 由 .card-book > :not(.book-cover) 设置为 16px */
+    /* padding-left/right 由 .card-book > :not(.book-cover-wrapper) 设置为 16px */
     padding-top: 10px;
     padding-bottom: 10px;
     /* 评价区内部左右 padding（在边框之后） */
@@ -301,12 +301,11 @@
     .card-book .out {
         grid-column: 1;
         grid-row: auto;
-        padding-left: 12px;
-        padding-right: 12px;
+        /* padding 由通用规则 .card-book> :not(.book-cover-wrapper) 设置 */
     }
 
-    /* 内容区内边距调整 */
-    .card-book> :not(.book-cover) {
+    /* 内容区内边距调整（排除封面容器） */
+    .card-book> :not(.book-cover-wrapper) {
         padding-left: 12px;
         padding-right: 12px;
     }
