@@ -307,8 +307,7 @@ export const CardRenderer = {
             ${it.image ? this.img({
             src: it.image,
             alt: '日记配图',
-            className: 'diary-image lightbox-trigger',
-            dataAttrs: { src: ImageProxyService.getProxiedUrl(it.image), caption: dateWithWeekday }
+            className: 'diary-image'
         }) : ''}
             ${it.content ? `<div class="diary-content"><p>${it.content}</p></div>` : ''}
         </article>`;
