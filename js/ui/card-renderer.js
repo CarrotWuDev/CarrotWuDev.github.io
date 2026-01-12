@@ -1,4 +1,5 @@
 import { slugify } from '../core/utils.js';
+import { ImageProxyService } from '../services/image-proxy.js';
 
 /**
  * CardRenderer - 负责生成各种类型的卡片 HTML
@@ -27,6 +28,31 @@ export const CardRenderer = {
     },
 
     // --- 辅助方法 ---
+
+    /**
+     * 渲染图片标签（统一处理代理）
+     * 
+     * @param {Object} options - 图片选项
+     * @param {string} options.src - 图片源地址
+     * @param {string} [options.alt=''] - 替代文本
+     * @param {string} [options.className=''] - CSS 类名
+     * @param {boolean} [options.lazy=true] - 是否懒加载
+     * @param {Object} [options.dataAttrs={}] - data-* 属性
+     * @returns {string} img 标签 HTML
+     */
+    img({ src, alt = '', className = '', lazy = true, dataAttrs = {} }) {
+        if (!src) return '';
+
+        const proxiedSrc = ImageProxyService.getProxiedUrl(src);
+        const loadingAttr = lazy ? 'loading="lazy"' : '';
+
+        // 构建 data-* 属性字符串
+        const dataAttrStr = Object.entries(dataAttrs)
+            .map(([key, value]) => `data-${key}="${value}"`)
+            .join(' ');
+
+        return `<img class="${className}" src="${proxiedSrc}" ${loadingAttr} alt="${alt}" ${dataAttrStr}>`.trim();
+    },
 
     renderHeader(title, status) {
         return `
@@ -81,7 +107,7 @@ export const CardRenderer = {
         // 封面区域：包含封面图片和状态标签
         const coverSection = it.cover ? `
             <div class="book-cover-wrapper">
-                <img class="book-cover" src="${it.cover}" loading="lazy" alt="${it.title} 封面">
+                ${this.img({ src: it.cover, alt: `${it.title} 封面`, className: 'book-cover' })}
                 ${it.status ? `<div class="book-status">${it.status}</div>` : ''}
             </div>
         ` : '';
@@ -103,7 +129,7 @@ export const CardRenderer = {
         // 封面区域：包含封面图片和状态标签
         const coverSection = it.cover ? `
             <div class="game-cover-wrapper">
-                <img class="card-cover" src="${it.cover}" loading="lazy" alt="封面">
+                ${this.img({ src: it.cover, alt: `${it.title} 封面`, className: 'card-cover' })}
                 ${it.status ? `<div class="game-status">${it.status}</div>` : ''}
             </div>
         ` : '';
@@ -126,37 +152,39 @@ export const CardRenderer = {
 
     cardPhoto(it) {
         const meta = [it.photoLocation, it.photoDate].filter(Boolean).join(' <span class="dot">&bull;</span> ');
+        // 获取代理后的图片 URL，用于 lightbox
+        const proxiedPhotoUrl = it.photoUrl ? ImageProxyService.getProxiedUrl(it.photoUrl) : '';
+
         return `
         <div class="card card-photo ${it.photoUrl ? 'has-photo' : ''}">
-            ${it.photoUrl ? `
-                <img class="card-photo-img lightbox-trigger" 
-                     src="${it.photoUrl}" 
-                     loading="lazy" 
-                     alt="${it.title}"
-                     data-src="${it.photoUrl}"
-                     data-caption="${it.title}">
-            ` : ''}
+            ${it.photoUrl ? this.img({
+            src: it.photoUrl,
+            alt: it.title,
+            className: 'card-photo-img lightbox-trigger',
+            dataAttrs: { src: proxiedPhotoUrl, caption: it.title }
+        }) : ''}
             <h3 data-tooltip="${it.title || ''}">${it.title || '未命名'}</h3>
             ${meta ? `<p class="card-meta photo-meta" data-tooltip="${[it.photoLocation, it.photoDate].filter(Boolean).join(' • ')}">${meta}</p>` : ''}
         </div>`;
     },
 
     cardGallery(it) {
-        const photosHtml = it.photos.map((p, idx) => `
+        const photosHtml = it.photos.map((p, idx) => {
+            const proxiedPhotoUrl = p.photoUrl ? ImageProxyService.getProxiedUrl(p.photoUrl) : '';
+            return `
             <div class="gallery-item" id="alb-${slugify(it.title)}-${idx}">
-                ${p.photoUrl ? `
-                    <img class="card-photo-img lightbox-trigger" 
-                         src="${p.photoUrl}" 
-                         loading="lazy" 
-                         data-src="${p.photoUrl}" 
-                         data-caption="${p.title}">
-                ` : ''}
+                ${p.photoUrl ? this.img({
+                src: p.photoUrl,
+                alt: p.title || '图集',
+                className: 'card-photo-img lightbox-trigger',
+                dataAttrs: { src: proxiedPhotoUrl, caption: p.title }
+            }) : ''}
                 <div class="gallery-info">
                     <h4 data-tooltip="${p.title || ''}">${p.title || '图集'}</h4>
                     ${(p.photoLocation || p.photoDate) ? `<p class="card-meta photo-meta" data-tooltip="${[p.photoLocation, p.photoDate].filter(Boolean).join(' • ')}">${[p.photoLocation, p.photoDate].filter(Boolean).join(' &bull; ')}</p>` : ''}
                 </div>
             </div>
-        `).join('');
+        `}).join('');
 
         return `
         <div class="card card-photo is-gallery" data-gallery-id="${slugify(it.title)}">
@@ -201,7 +229,7 @@ export const CardRenderer = {
                 <!-- Stub -->
                 <div class="film-stub">
                     ${it.status ? `<div class="film-status">${it.status}</div>` : ''}
-                    ${it.cover ? `<img class="film-poster" src="${it.cover}" loading="lazy" alt="${it.title}">` : ''}
+                    ${it.cover ? this.img({ src: it.cover, alt: it.title, className: 'film-poster' }) : ''}
                 </div>
 
                 <!-- Main -->
@@ -252,14 +280,12 @@ export const CardRenderer = {
                 ${weatherEmoji ? `<span class="diary-weather">${weatherEmoji}</span>` : ''}
             </div>
             ${it.content ? `<div class="diary-content"><p>${it.content}</p></div>` : ''}
-            ${it.image ? `
-                <img class="diary-image lightbox-trigger" 
-                     src="${it.image}" 
-                     loading="lazy" 
-                     alt="日记配图"
-                     data-src="${it.image}"
-                     data-caption="${dateWithWeekday}">
-            ` : ''}
+            ${it.image ? this.img({
+            src: it.image,
+            alt: '日记配图',
+            className: 'diary-image lightbox-trigger',
+            dataAttrs: { src: ImageProxyService.getProxiedUrl(it.image), caption: dateWithWeekday }
+        }) : ''}
         </article>`;
     },
 
