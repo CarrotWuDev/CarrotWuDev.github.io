@@ -24,11 +24,31 @@ export const RenderService = {
         // 1. Click Handler (Lightbox, Nav, Gallery)
         document.body.addEventListener('click', (e) => {
             // A. Lightbox
+            // A. Lightbox
             const lightboxTrigger = e.target.closest('.lightbox-trigger');
             if (lightboxTrigger) {
                 const src = lightboxTrigger.dataset.src;
                 const caption = lightboxTrigger.dataset.caption;
-                if (src) openLightbox(src, caption);
+
+                // Check if inside a gallery/album
+                const galleryCard = lightboxTrigger.closest('.card.is-gallery');
+
+                if (galleryCard) {
+                    // Collect all items in this gallery
+                    const triggers = Array.from(galleryCard.querySelectorAll('.lightbox-trigger'));
+                    const items = triggers.map(el => ({
+                        src: el.dataset.src,
+                        caption: el.dataset.caption
+                    }));
+                    const index = triggers.indexOf(lightboxTrigger);
+
+                    if (src && index !== -1) {
+                        openLightbox(items, index);
+                    }
+                } else {
+                    // Single image
+                    if (src) openLightbox(src, caption);
+                }
                 return;
             }
 
