@@ -3,31 +3,152 @@ import { RenderService } from './ui/render.js';
 import { initTheme } from './ui/theme.js';
 import { initTooltip } from './ui/tooltip.js';
 import { initScrollbarBehavior } from './ui/scroll.js';
-import { AudioPlayer } from './ui/audio-player.js'; // Ensure this is the only copy
+import { AudioPlayer } from './ui/audio-player.js';
+
+/**
+ * 站点配置缓存（模块级）
+ * 用于在懒加载时访问分类信息
+ * @type {Object|null}
+ */
+let siteConfig = null;
 
 /**
  * 应用程序入口
+ * 
+ * 加载策略：首屏优先 + 后台预加载
+ * 1. 加载站点配置（元数据）
+ * 2. 渲染页面骨架（带加载状态）
+ * 3. 加载并渲染首个 section
+ * 4. 后台静默加载其余所有 section
+ * 5. 启动滚动监听等功能
  */
 async function init() {
     try {
         // 1. 初始化 UI 事件委托
         RenderService.init();
 
-        // 2. 加载数据
-        const data = await DataService.loadSiteData();
+        // 2. 加载站点配置（仅元数据，不含分类内容）
+        siteConfig = await DataService.loadSiteConfig();
 
-        // 3. 渲染页面
-        RenderService.renderAll(data);
+        // 3. 渲染页面骨架（所有 section 显示加载状态）
+        RenderService.renderAll(siteConfig);
 
-        // 4. 初始化音乐播放器
-        initAudioPlayer();
-
-        // 5. 启动滚动监听
+        // 4. 启动滚动监听（需要在骨架渲染后立即启动）
         setupScrollSpy();
 
+        // 5. 加载并渲染首个 section（首屏优先）
+        const firstCategory = siteConfig.categories[0];
+        if (firstCategory) {
+            await loadAndRenderSection(firstCategory);
+        }
+
+        // 6. 后台静默加载其余 section
+        const remainingCategories = siteConfig.categories.slice(1);
+        preloadRemainingCategories(remainingCategories);
+
     } catch (e) {
-        console.error('App initialization failed:', e);
-        document.getElementById('contentRoot').innerHTML = `<p class="error" style="padding:20px;color:red;">Start Error: ${e.message}</p>`;
+        console.error('[App] Initialization failed:', e);
+        const contentRoot = document.getElementById('contentRoot');
+        if (contentRoot) {
+            contentRoot.innerHTML = `
+                <div class="error-state" style="padding: 40px; text-align: center;">
+                    <p style="color: var(--color-error, #dc2626); margin-bottom: 8px;">
+                        加载失败
+                    </p>
+                    <p style="color: var(--color-text-secondary, #888); font-size: 0.875rem;">
+                        ${e.message}
+                    </p>
+                </div>
+            `;
+        }
+    }
+}
+
+/**
+ * 加载并渲染单个 section 的内容
+ * 
+ * @param {Object} category - 分类配置对象
+ * @returns {Promise<void>}
+ */
+async function loadAndRenderSection(category) {
+    const sectionEl = document.getElementById(category.id);
+    if (!sectionEl) {
+        console.warn(`[App] Section element not found: ${category.id}`);
+        return;
+    }
+
+    // 已加载则跳过
+    if (RenderService.isSectionLoaded(sectionEl)) {
+        return;
+    }
+
+    // 加载分类内容
+    const items = await DataService.loadCategoryContent(category);
+
+    // 缓存到 category 对象（供其他功能使用，如音乐播放器）
+    category.items = items;
+
+    // 渲染内容
+    RenderService.renderSectionContent(sectionEl, items, category.type);
+
+    // 如果是音乐类型，初始化音乐播放器
+    if (category.type === 'music' && items.length > 0) {
+        initAudioPlayerForSection();
+    }
+}
+
+/**
+ * 后台静默预加载其余分类
+ * 使用 requestIdleCallback 或 setTimeout 避免阻塞主线程
+ * 
+ * @param {Array<Object>} categories - 待预加载的分类数组
+ */
+function preloadRemainingCategories(categories) {
+    if (categories.length === 0) return;
+
+    /**
+     * 执行预加载任务
+     */
+    const doPreload = async () => {
+        for (const category of categories) {
+            try {
+                await loadAndRenderSection(category);
+            } catch (e) {
+                console.error(`[App] Failed to preload category "${category.id}":`, e);
+            }
+        }
+    };
+
+    // 使用 requestIdleCallback（如果支持）在浏览器空闲时执行
+    // 否则使用 setTimeout 延迟执行
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(() => doPreload(), { timeout: 2000 });
+    } else {
+        setTimeout(doPreload, 100);
+    }
+}
+
+/**
+ * 为音乐 section 初始化播放器
+ * 在音乐内容渲染完成后调用
+ */
+function initAudioPlayerForSection() {
+    const musicSection = document.querySelector('.music-section');
+    if (!musicSection) {
+        return;
+    }
+
+    const playlistData = musicSection.dataset.playlist;
+    if (!playlistData) {
+        console.warn('[App] Music section found but no playlist data');
+        return;
+    }
+
+    try {
+        const playlist = JSON.parse(playlistData);
+        AudioPlayer.init(playlist);
+    } catch (e) {
+        console.error('[App] Failed to parse playlist data:', e);
     }
 }
 
@@ -111,34 +232,6 @@ function setupScrollSpy() {
         const sections = document.querySelectorAll('#contentRoot section');
         sections.forEach(sec => observer.observe(sec));
     }, 100);
-}
-
-/**
- * 初始化音乐播放器
- * 查找 .music-section 元素并解析播放列表数据
- */
-function initAudioPlayer() {
-    const musicSection = document.querySelector('.music-section');
-    if (!musicSection) {
-        return;
-    }
-
-    // 解析 data-playlist 属性中的 JSON 数据
-    const playlistData = musicSection.dataset.playlist;
-    if (!playlistData) {
-        console.warn('[App] Music section found but no playlist data');
-        return;
-    }
-
-    try {
-        const playlist = JSON.parse(playlistData);
-        AudioPlayer.init(playlist);
-
-        // 初始化音乐区块布局同步（播放列表高度 = 播放器高度）
-        // Now handled by MusicUI internally
-    } catch (e) {
-        console.error('[App] Failed to parse playlist data:', e);
-    }
 }
 
 /**

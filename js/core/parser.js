@@ -288,8 +288,9 @@ export const Parser = {
 
             const isbn = parseField(trimmed, 'ISBN');
             if (isbn && !target.cover) {
-                // Auto-generate cover from ISBN using Open Library if no custom cover provided
-                target.cover = `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
+                // 使用 weserv.nl 代理 Open Library 封面（解决国内无法访问问题）
+                const openLibraryUrl = `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
+                target.cover = `https://images.weserv.nl/?url=${encodeURIComponent(openLibraryUrl)}`;
                 continue;
             }
 

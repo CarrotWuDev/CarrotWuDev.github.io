@@ -119,7 +119,10 @@ export const RenderService = {
     },
 
     /**
-     * 渲染所有内容
+     * 渲染页面骨架（不含分类内容）
+     * 内容将通过懒加载机制后续填充
+     * 
+     * @param {Object} config - 站点配置对象
      */
     renderAll(config) {
         this.updateSEO(config.blogInfo);
@@ -127,7 +130,7 @@ export const RenderService = {
         this.renderBot(config.blogInfo);
 
         this.renderNav(config.categories);
-        this.renderContent(config.categories);
+        this.renderContentSkeleton(config.categories);
 
         // Apply colors and inject dynamic styles for unknown types
         config.categories.forEach(cat => {
@@ -139,8 +142,7 @@ export const RenderService = {
             }
         });
 
-        // Lifecycle: Initialize component layouts after DOM injection
-        MusicUI.initLayout();
+        // 注意：MusicUI.initLayout() 将在音乐 section 内容加载后调用
     },
 
     injectDynamicStyles(type) {
@@ -209,35 +211,80 @@ export const RenderService = {
         document.getElementById('typeNav').innerHTML = html;
     },
 
-    renderContent(categories) {
+    /**
+     * 渲染所有分类的骨架结构（带加载状态）
+     * 每个 section 包含标题和加载占位符，等待懒加载填充实际内容
+     * 
+     * @param {Array<Object>} categories - 分类配置数组
+     */
+    renderContentSkeleton(categories) {
         const root = document.getElementById('contentRoot');
-        root.innerHTML = categories.map(cat => {
-            const hasItems = cat.items && cat.items.length > 0;
+        root.innerHTML = categories.map(cat => `
+            <section 
+                id="${cat.id}" 
+                aria-labelledby="h-${cat.id}"
+                data-loaded="false"
+                data-type="${cat.type}"
+            >
+                <h2 id="h-${cat.id}">${cat.title}</h2>
+                <div class="section-content">
+                    <div class="loading-state" aria-live="polite">
+                        <span class="loading-spinner" aria-hidden="true"></span>
+                        <span class="loading-text">加载中...</span>
+                    </div>
+                </div>
+            </section>
+        `).join('');
+    },
 
-            // Music type uses delegated renderer
-            if (cat.type === 'music') {
-                const content = hasItems
-                    ? MusicUI.render(cat.items)
-                    : `<p class="empty-state">暂无内容</p>`;
-                return `
-                <section id="${cat.id}" aria-labelledby="h-${cat.id}">
-                    <h2 id="h-${cat.id}">${cat.title}</h2>
-                    ${content}
-                </section>
-            `;
-            }
+    /**
+     * 渲染单个 section 的实际内容
+     * 用于懒加载完成后替换加载状态
+     * 
+     * @param {HTMLElement} sectionEl - section DOM 元素
+     * @param {Array} items - 分类内容项数组
+     * @param {string} type - 分类类型（project, game, photo, book, diary, music, film 等）
+     * @returns {void}
+     */
+    renderSectionContent(sectionEl, items, type) {
+        const contentEl = sectionEl.querySelector('.section-content');
+        if (!contentEl) {
+            console.warn('[RenderService] Section content container not found');
+            return;
+        }
 
-            // Default card-based layout uses CardRenderer
-            const content = hasItems
-                ? `<div class="cards">${cat.items.map(item => CardRenderer.render(item, cat.type)).join('')}</div>`
+        const hasItems = items && items.length > 0;
+
+        // 根据类型渲染不同的内容结构
+        if (type === 'music') {
+            contentEl.innerHTML = hasItems
+                ? MusicUI.render(items)
                 : `<p class="empty-state">暂无内容</p>`;
 
-            return `
-            <section id="${cat.id}" aria-labelledby="h-${cat.id}">
-                <h2 id="h-${cat.id}">${cat.title}</h2>
-                ${content}
-            </section>
-        `;
-        }).join('');
+            // 音乐类型需要初始化布局
+            if (hasItems) {
+                MusicUI.initLayout();
+            }
+        } else {
+            // 默认卡片布局
+            contentEl.innerHTML = hasItems
+                ? `<div class="cards">${items.map(item => CardRenderer.render(item, type)).join('')}</div>`
+                : `<p class="empty-state">暂无内容</p>`;
+        }
+
+        // 标记为已加载
+        sectionEl.dataset.loaded = 'true';
+
+        // 移除加载状态的 ARIA 属性
+        contentEl.removeAttribute('aria-live');
+    },
+
+    /**
+     * 检查 section 是否已加载内容
+     * @param {HTMLElement} sectionEl - section DOM 元素
+     * @returns {boolean}
+     */
+    isSectionLoaded(sectionEl) {
+        return sectionEl.dataset.loaded === 'true';
     }
 };
