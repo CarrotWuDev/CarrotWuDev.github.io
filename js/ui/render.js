@@ -107,14 +107,54 @@ export const RenderService = {
     /**
      * 设置 SEO 信息
      */
-    updateSEO(blogInfo) {
-        if (!blogInfo) return;
-        if (blogInfo.title) document.title = blogInfo.title;
-        if (blogInfo.desc) {
-            const meta = document.querySelector('meta[name="description"]');
-            if (meta) meta.content = blogInfo.desc;
+
+
+    /**
+     * 设置 SEO 信息 (Title, Meta, OG, Twitter)
+     */
+    updateSEO(config) {
+        if (!config || !config.blogInfo) return;
+
+        const info = config.blogInfo;
+        const author = config.authorInfo || {};
+        const siteUrl = 'https://carrotwudev.github.io'; // Base URL
+
+        // 1. Basic SEO
+        if (info.title) document.title = info.title;
+        this.setMeta('description', info.desc);
+        this.setMeta('keywords', author.tags ? author.tags.join(', ') : '');
+        this.setMeta('author', author.name);
+
+        // 2. Open Graph
+        this.setMeta('og:title', info.title, 'property');
+        this.setMeta('og:description', info.desc, 'property');
+        // Construct absolute URL for image
+        if (info.favicon) {
+            const imageUrl = info.favicon.startsWith('http') ? info.favicon : `${siteUrl}/${info.favicon}`;
+            this.setMeta('og:image', imageUrl, 'property');
+            this.setMeta('twitter:image', imageUrl, 'property');
+            this.setFavicon(info.favicon);
         }
-        if (blogInfo.favicon) this.setFavicon(blogInfo.favicon);
+
+        // 3. Twitter Card
+        this.setMeta('twitter:title', info.title, 'property');
+        this.setMeta('twitter:description', info.desc, 'property');
+        this.setMeta('twitter:creator', '@CarrotWuDev'); // 默认 Twitter 账号
+
+        // 4. Update Canonical
+        const canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) canonical.href = siteUrl + '/';
+    },
+
+    setMeta(name, content, attr = 'name') {
+        if (!content) return;
+        let meta = document.querySelector(`meta[${attr}="${name}"]`);
+        if (!meta) {
+            meta = document.createElement('meta');
+            meta.setAttribute(attr, name);
+            document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', content);
     },
 
     setFavicon(faviconUrl) {
@@ -145,7 +185,7 @@ export const RenderService = {
      * @param {Object} config - 站点配置对象
      */
     renderAll(config) {
-        this.updateSEO(config.blogInfo);
+        this.updateSEO(config);
         this.renderProfile(config.authorInfo);
         this.renderBot(config.blogInfo);
 
