@@ -5,6 +5,19 @@ import { ImageProxyService } from '../services/image-proxy.js';
  * CardRenderer - 负责生成各种类型的卡片 HTML
  * 遵循工厂模式
  */
+/**
+ * Emoji 映射表
+ */
+const MOOD_EMOJI_MAP = {
+    '开心': '😊', '平静': '😌', '一般': '😐', '疲惫': '😩',
+    '低落': '😔', '焦虑': '😰', '生气': '😠'
+};
+
+const WEATHER_EMOJI_MAP = {
+    '晴朗': '☀️', '多云': '⛅', '阴天': '☁️', '小雨': '🌧️',
+    '雷雨': '⛈️', '雪': '❄️', '雾': '🌫️', '风': '💨'
+};
+
 export const CardRenderer = {
     /**
      * 渲染卡片入口
@@ -101,8 +114,27 @@ export const CardRenderer = {
     },
 
     cardBook(it) {
-        // 作者 · 出版年份
-        const meta = [it.author, it.publishYear].filter(Boolean).join(' <span class="dot">&bull;</span> ');
+        // 构建作者和年份的语义化 HTML 结构
+        // 使用独立的 span 包裹，以支持 CSS 对作者名的截断控制
+        const authorHtml = it.author
+            ? `<span class="book-author" data-tooltip="${it.author}">${it.author}</span>`
+            : '';
+        const yearHtml = it.publishYear
+            ? `<span class="book-year">${it.publishYear}</span>`
+            : '';
+        const dotHtml = '<span class="dot">&bull;</span>';
+
+        // 根据是否有作者和年份决定 meta 内容
+        let metaHtml = '';
+        if (it.author && it.publishYear) {
+            metaHtml = `${authorHtml} ${dotHtml} ${yearHtml}`;
+        } else if (it.author) {
+            metaHtml = authorHtml;
+        } else if (it.publishYear) {
+            metaHtml = yearHtml;
+        } else {
+            metaHtml = '&nbsp;';
+        }
 
         // 封面区域：包含封面图片和状态标签
         const coverSection = it.cover ? `
@@ -116,7 +148,7 @@ export const CardRenderer = {
         <div class="card card-book ${it.cover ? 'has-cover' : ''}">
             ${coverSection}
             ${this.renderHeader(it.title)}
-            <div class="card-meta book-meta" data-tooltip="${[it.author, it.publishYear].filter(Boolean).join(' • ')}">${meta || '&nbsp;'}</div>
+            <div class="card-meta book-meta">${metaHtml}</div>
             ${this.renderTags(it.tags, 'book-tags')}
             ${it.review ? `<div class="book-review"><p data-tooltip="${it.review}">${it.review}</p></div>` : '<div class="book-review">&nbsp;</div>'}
             ${this.renderFooterLink(it.linkUrl, it.linkText)}
@@ -259,14 +291,7 @@ export const CardRenderer = {
     },
 
     cardDiary(it) {
-        const MOOD_EMOJI_MAP = {
-            '开心': '😊', '平静': '😌', '一般': '😐', '疲惫': '😩',
-            '低落': '😔', '焦虑': '😰', '生气': '😠'
-        };
-        const WEATHER_EMOJI_MAP = {
-            '晴朗': '☀️', '多云': '⛅', '阴天': '☁️', '小雨': '🌧️',
-            '雷雨': '⛈️', '雪': '❄️', '雾': '🌫️', '风': '💨'
-        };
+
 
         const dateWithWeekday = this.formatDateWithWeekday(it.title);
         const moodEmoji = it.mood ? (MOOD_EMOJI_MAP[it.mood] || '📝') : '📝';
@@ -279,13 +304,13 @@ export const CardRenderer = {
                 <time class="diary-date">${dateWithWeekday}</time>
                 ${weatherEmoji ? `<span class="diary-weather">${weatherEmoji}</span>` : ''}
             </div>
-            ${it.content ? `<div class="diary-content"><p>${it.content}</p></div>` : ''}
             ${it.image ? this.img({
             src: it.image,
             alt: '日记配图',
             className: 'diary-image lightbox-trigger',
             dataAttrs: { src: ImageProxyService.getProxiedUrl(it.image), caption: dateWithWeekday }
         }) : ''}
+            ${it.content ? `<div class="diary-content"><p>${it.content}</p></div>` : ''}
         </article>`;
     },
 

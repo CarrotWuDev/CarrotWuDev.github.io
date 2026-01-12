@@ -169,10 +169,12 @@
 .diary-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    /* 日期靠左，天气靠右 */
+    justify-content: flex-start;
+    /* 左对齐，更紧凑 */
     gap: 12px;
     flex-wrap: wrap;
+    margin-bottom: 8px;
+    /* 增加与内容的间距 */
 }
 
 .diary-date {
@@ -194,44 +196,53 @@
     /* 移除标签样式，只显示 emoji */
 }
 
-/* 正文 (Content) */
+/* 正文 (Content) - 通透版 */
 .diary-content {
-    background: var(--bg-subtle);
-    padding: 16px;
-    /* 常态使用默认边框色，悬浮时变为强调色 */
+    /* 移除背景色，增强由于呼吸感 */
+    /* 移除背景色，增强由于呼吸感 (默认透明，无需显式声明) */
+    /* 调整内边距：左侧留出空间给边框，上下保持适度 */
+    padding: 4px 0 4px 16px;
+    /* 边框优化：更细致的线条 */
     border-left: 3px solid var(--line);
     transition: border-color 0.15s ease;
 }
 
 .diary-content p {
     margin: 0;
-    font-size: 14px;
-    line-height: 1.7;
+    /* 升级字号：14px -> 16px (提升阅读体验) */
+    font-size: 16px;
+    /* 优化行高：1.75 (更宽松) */
+    line-height: 1.75;
     color: var(--fg);
+    /* 增加字重稍微提升质感 */
+    font-weight: 400;
 }
 
 .card-diary:hover .diary-content {
     border-left-color: var(--accent-diary);
 }
 
-/* 配图 (Image) */
+/* 配图 (Image) - 简约版 */
 .diary-image {
+    display: block;
     width: 100%;
+    /* 限制最大高度，避免竖图占据过长版面 */
     max-height: 300px;
     object-fit: cover;
-    border: 3px solid var(--line);
+
+    /* 样式简化：移除边框，无圆角 (直角设计) */
+    /* 样式简化：移除边框，无圆角 (默认直角) */
     cursor: pointer;
-    filter: grayscale(100%);
-    transition: filter 0.3s ease, transform 0.3s ease, border-color 0.15s ease;
+
+    /* 间距：图片在内容上方，需要底部间距 */
+    margin-bottom: 12px;
 }
 
 .card-diary:hover .diary-image {
-    filter: grayscale(0);
-    border-color: var(--accent-diary);
-}
-
-.diary-image:hover {
-    transform: scale(1.01);
+    /* 移除之前的变色逻辑 */
+    filter: brightness(0.95);
+    /* 仅做微弱的亮度反馈暗示可点击 */
+    transition: filter 0.2s ease;
 }
 
 /* --- 移动端适配 (Responsive) --- */

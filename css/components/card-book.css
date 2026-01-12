@@ -133,10 +133,24 @@
     align-items: center;
     gap: 4px;
 
-    /* 元信息过长时省略 */
+    /* 允许 flex 容器收缩到内容宽度以下 */
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* 作者名：填充剩余空间，允许收缩并显示省略号 */
+.book-author {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1;
+}
+
+/* 年份：固定宽度，不收缩 */
+.book-year {
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 /* 第3行：标签区域（由 subgrid 行轨道决定高度） */
@@ -174,7 +188,9 @@
     /* 重置继承的 padding-left/right，因为我们用 margin 代替 */
     border-left: 3px solid var(--line);
     transition: border-color 0.15s;
-    align-self: start;
+
+    /* 不设置 align-self，默认为 stretch，填满 subgrid 行轨道高度 */
+    /* 确保所有卡片的评价区域高度一致 */
 
     /* 确保容器隐藏溢出内容，配合内部 p 标签的 line-clamp */
     overflow: hidden;
