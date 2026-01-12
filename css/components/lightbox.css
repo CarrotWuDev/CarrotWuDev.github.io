@@ -124,21 +124,3 @@
     padding: 4px 12px;
     border-radius: 99px;
 }
-
-/* 缩放状态 */
-.lightbox-img {
-    cursor: zoom-in;
-    transition: transform 0.1s linear;
-    /* 缩放时更跟手 */
-}
-
-.lightbox-img.zoomed {
-    cursor: grab;
-    max-width: none;
-    max-height: none;
-    /* 移除 object-fit 以便自由缩放 */
-}
-
-.lightbox-img.dragging {
-    cursor: grabbing;
-}

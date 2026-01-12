@@ -1,6 +1,7 @@
 /**
- * Enhanced Lightbox Component
- * Features: Zoom, Pan, Gestures (Swipe), Keyboard Nav, Gallery Support
+ * Simple Lightbox Component
+ * Features: Gallery Support, Swipe Navigation, Keyboard Nav
+ * Note: Zoom feature removed for simplicity
  */
 
 const Lightbox = {
@@ -9,14 +10,6 @@ const Lightbox = {
     img: null,
     items: [], // Array of { src, caption }
     currentIndex: 0,
-
-    // Zoom State
-    scale: 1,
-    panning: false,
-    pointX: 0,
-    pointY: 0,
-    startX: 0,
-    startY: 0,
 
     // Gesture State
     touchStartX: 0,
@@ -67,22 +60,13 @@ const Lightbox = {
     },
 
     bindEvents() {
-        const { el, img, els } = this;
+        const { el, els } = this;
 
         // Core UI Events
         els.closeBtn.addEventListener('click', () => this.close());
         els.overlay.addEventListener('click', () => this.close());
         els.prevBtn.addEventListener('click', (e) => { e.stopPropagation(); this.prev(); });
         els.nextBtn.addEventListener('click', (e) => { e.stopPropagation(); this.next(); });
-
-        // Zoom & Pan Events (Mouse/Pointer)
-        img.addEventListener('wheel', (e) => this.handleWheel(e), { passive: false });
-        img.addEventListener('dblclick', (e) => this.handleDblClick(e));
-
-        img.addEventListener('pointerdown', (e) => this.handlePointerDown(e));
-        window.addEventListener('pointermove', (e) => this.handlePointerMove(e));
-        window.addEventListener('pointerup', (e) => this.handlePointerUp(e));
-        window.addEventListener('pointercancel', (e) => this.handlePointerUp(e));
 
         // Swipe Gestures (Touch)
         el.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: true });
@@ -99,7 +83,6 @@ const Lightbox = {
         this.items = items;
         this.currentIndex = index;
 
-        this.resetZoom();
         this.updateImage();
 
         requestAnimationFrame(() => this.el.classList.add('active'));
@@ -119,9 +102,6 @@ const Lightbox = {
     updateImage() {
         const item = this.items[this.currentIndex];
         if (!item) return;
-
-        // Reset state before loading new image
-        this.resetZoom();
 
         this.img.src = item.src;
         this.img.alt = item.caption || '';
@@ -171,168 +151,16 @@ const Lightbox = {
         this.els.nextBtn.style.opacity = this.currentIndex === this.items.length - 1 ? '0.1' : '1';
     },
 
-    // --- Zoom Logic ---
-
-    resetZoom() {
-        this.scale = 1;
-        this.pointX = 0;
-        this.pointY = 0;
-        this.updateTransform();
-        this.img.classList.remove('zoomed');
-    },
-
-    handleWheel(e) {
-        if (!this.el.classList.contains('active')) return;
-        e.preventDefault();
-
-        const delta = e.deltaY > 0 ? -0.2 : 0.2;
-        const newScale = Math.max(1, Math.min(4, this.scale + delta));
-
-        if (newScale !== this.scale) {
-            this.scale = newScale;
-            this.img.classList.toggle('zoomed', this.scale > 1);
-            this.updateTransform();
-        }
-    },
-
-    handleDblClick(e) {
-        if (this.scale > 1) {
-            this.resetZoom();
-        } else {
-            this.scale = 2; // Double zoom
-            this.img.classList.add('zoomed');
-            this.updateTransform();
-        }
-    },
-
-    updateTransform() {
-        // Apply transform to image
-        this.img.style.transform = `translate(${this.pointX}px, ${this.pointY}px) scale(${this.scale})`;
-    },
-
-    // --- Pointer Events (Zoom & Pan & Pinch & DoubleTap) ---
-
-    // Track active pointers
-    pointers: new Map(),
-    prevDist: -1,
-
-    // Tap detection
-    lastTapTime: 0,
-    lastTapPoint: { x: 0, y: 0 },
-
-    handlePointerDown(e) {
-        e.preventDefault();
-        this.el.setPointerCapture(e.pointerId);
-        this.pointers.set(e.pointerId, e);
-
-        // Double Tap Detection
-        const now = Date.now();
-        const isDoubleTap = (now - this.lastTapTime < 300) &&
-            (Math.abs(e.clientX - this.lastTapPoint.x) < 20) &&
-            (Math.abs(e.clientY - this.lastTapPoint.y) < 20);
-
-        if (isDoubleTap && this.pointers.size === 1) {
-            // Manually trigger double click logic
-            this.handleDblClick(e);
-            // Reset to prevent triple-tap triggering again immediately
-            this.lastTapTime = 0;
-            return;
-        }
-
-        // Store for next tap check
-        this.lastTapTime = now;
-        this.lastTapPoint = { x: e.clientX, y: e.clientY };
-
-        // If dragging with mouse or single touch (and zoomed)
-        if (this.pointers.size === 1 && this.scale > 1) {
-            this.panning = true;
-            this.startX = e.clientX - this.pointX;
-            this.startY = e.clientY - this.pointY;
-            this.img.classList.add('dragging');
-        }
-
-        // If two fingers (Pinch)
-        if (this.pointers.size === 2) {
-            this.panning = false; // Disable single finger pan
-            // Calculate initial distance
-            const points = Array.from(this.pointers.values());
-            this.prevDist = this.getDistance(points[0], points[1]);
-        }
-    },
-
-    handlePointerMove(e) {
-        if (!this.pointers.has(e.pointerId)) return;
-        e.preventDefault();
-
-        // Update stored pointer
-        this.pointers.set(e.pointerId, e);
-
-        // 1. Pinch Zoom (2 fingers)
-        if (this.pointers.size === 2) {
-            const points = Array.from(this.pointers.values());
-            const curDist = this.getDistance(points[0], points[1]);
-
-            if (this.prevDist > 0) {
-                const diff = curDist - this.prevDist;
-                // Sensible zoom speed factor
-                const scaleFactor = 0.005;
-                const newScale = Math.max(1, Math.min(4, this.scale + diff * scaleFactor));
-
-                if (newScale !== this.scale) {
-                    this.scale = newScale;
-                    this.img.classList.toggle('zoomed', this.scale > 1);
-                    this.updateTransform();
-                }
-            }
-            this.prevDist = curDist;
-            return;
-        }
-
-        // 2. Pan (1 finger/mouse) - Only if zoomed
-        if (this.pointers.size === 1 && this.panning && this.scale > 1) {
-            this.pointX = e.clientX - this.startX;
-            this.pointY = e.clientY - this.startY;
-            this.updateTransform();
-        }
-    },
-
-    handlePointerUp(e) {
-        this.pointers.delete(e.pointerId);
-
-        // Reset pinch state if < 2 fingers
-        if (this.pointers.size < 2) {
-            this.prevDist = -1;
-        }
-
-        // Reset pan state if 0 fingers
-        if (this.pointers.size === 0) {
-            this.panning = false;
-            this.img.classList.remove('dragging');
-        } else if (this.pointers.size === 1) {
-            // Re-engage panning for remaining finger? 
-            // Usually better to wait for new gesture to avoid jump
-            // But checking bounds here would be good
-            this.panning = false;
-        }
-    },
-
-    getDistance(p1, p2) {
-        const dx = p1.clientX - p2.clientX;
-        const dy = p1.clientY - p2.clientY;
-        return Math.hypot(dx, dy);
-    },
-
     // --- Gesture Logic (Swipe) ---
-    // Keep touch handlers for simple swipe detection when NOT zoomed
 
     handleTouchStart(e) {
-        if (this.scale > 1 || e.touches.length > 1) return; // Disable swipe when zoomed or multitouch
+        if (e.touches.length > 1) return; // Disable swipe when multitouch
         this.touchStartX = e.changedTouches[0].screenX;
         this.touchStartY = e.changedTouches[0].screenY;
     },
 
     handleTouchEnd(e) {
-        if (this.scale > 1 || e.changedTouches.length > 1) return;
+        if (e.changedTouches.length > 1) return;
 
         const touchEndX = e.changedTouches[0].screenX;
         const touchEndY = e.changedTouches[0].screenY;
@@ -356,17 +184,6 @@ const Lightbox = {
             case 'Escape': this.close(); break;
             case 'ArrowLeft': this.prev(); break;
             case 'ArrowRight': this.next(); break;
-            case '+':
-            case '=': // Check for plus
-                this.scale = Math.min(4, this.scale + 0.5);
-                this.updateTransform();
-                break;
-            case '-':
-            case '_':
-                this.scale = Math.max(1, this.scale - 0.5);
-                this.updateTransform();
-                break;
-            case '0': this.resetZoom(); break;
         }
     }
 };
