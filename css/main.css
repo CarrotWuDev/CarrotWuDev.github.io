@@ -27,6 +27,7 @@
 @import "components/card-film.css";
 @import "components/section-music.css";
 @import "components/mini-player.css";
+@import "components/nav-indicator.css";
 
 /* 5. Utilities (Trumps) */
 @import "utilities.css";

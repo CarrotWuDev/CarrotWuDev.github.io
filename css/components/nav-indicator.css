@@ -1,0 +1,102 @@
+/* ====== 导航栏音频指示器 (Nav Audio Indicator) ====== */
+
+/**
+ * 桌面端音乐播放状态指示器
+ * 
+ * 设计：
+ * - 3 根均衡器条（Equalizer Bars）
+ * - 放置在导航链接文字右侧
+ * - 仅在桌面端显示（移动端使用 Mini Player）
+ * 
+ * 触发条件：
+ * - 音乐播放时：显示并律动
+ * - 音乐暂停时：显示但静止
+ * - 未播放时：隐藏
+ */
+
+/* --- 容器 (Container) --- */
+
+.nav-audio-indicator {
+    display: inline-flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 2px;
+    /* width: auto; 由内容自适应，避免亚像素渲染问题 */
+    height: 13px;
+    margin-left: 8px;
+    vertical-align: middle;
+
+    /* 默认隐藏 */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* 播放状态：显示并启用动画 */
+.type-nav a[data-type="music"].is-playing .nav-audio-indicator {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 暂停状态：隐藏 */
+.type-nav a[data-type="music"].is-paused .nav-audio-indicator {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* --- 均衡器条 (Bars) --- */
+
+.nav-audio-bar {
+    width: 3px;
+    height: 3px;
+    background-color: currentColor;
+    transform-origin: bottom;
+    animation: nav-equalizer 0s ease-in-out infinite alternate;
+}
+
+/* 播放时启用动画 */
+.type-nav a[data-type="music"].is-playing .nav-audio-bar {
+    animation-play-state: running;
+}
+
+/* 暂停时停止动画 */
+.type-nav a[data-type="music"].is-paused .nav-audio-bar {
+    animation-play-state: paused;
+    height: 4px;
+}
+
+/* 每根条的动画时长和延迟（产生错落感） */
+.nav-audio-bar:nth-child(1) {
+    animation-duration: 0.45s;
+    animation-delay: 0s;
+}
+
+.nav-audio-bar:nth-child(2) {
+    animation-duration: 0.55s;
+    animation-delay: 0.15s;
+}
+
+.nav-audio-bar:nth-child(3) {
+    animation-duration: 0.4s;
+    animation-delay: 0.05s;
+}
+
+/* --- 动画关键帧 (Keyframes) --- */
+
+@keyframes nav-equalizer {
+    0% {
+        height: 3px;
+    }
+
+    100% {
+        height: 12px;
+    }
+}
+
+/* --- 移动端隐藏 (Mobile Hidden) --- */
+
+@media (max-width: 767px) {
+    .nav-audio-indicator {
+        display: none;
+    }
+}
