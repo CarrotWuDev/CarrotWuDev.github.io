@@ -21,8 +21,8 @@
     align-items: flex-end;
     justify-content: center;
     gap: 2px;
-    /* width: auto; 由内容自适应，避免亚像素渲染问题 */
-    height: 13px;
+    width: 14px;
+    height: 14px;
     margin-left: 8px;
     vertical-align: middle;
 
@@ -49,6 +49,8 @@
 .nav-audio-bar {
     width: 3px;
     height: 3px;
+    /* 禁止压缩，确保永远是 3px */
+    flex-shrink: 0;
     background-color: currentColor;
     transform-origin: bottom;
     animation: nav-equalizer 0s ease-in-out infinite alternate;
