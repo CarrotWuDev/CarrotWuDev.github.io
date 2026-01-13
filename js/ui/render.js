@@ -1,6 +1,7 @@
 import { openLightbox } from './lightbox.js';
 import { CardRenderer } from './card-renderer.js';
 import { MusicUI } from './music-ui.js';
+import { MiniPlayer } from './mini-player.js';
 
 /**
  * 类型注册表 - 集中定义所有已知类型
@@ -102,6 +103,9 @@ export const RenderService = {
 
         // 3. Initialize Music UI
         MusicUI.init();
+
+        // 4. Initialize Mini Player (mobile only)
+        MiniPlayer.init();
     },
 
     /**
