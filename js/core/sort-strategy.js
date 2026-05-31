@@ -55,6 +55,18 @@ export const SortStrategyFactory = {
     },
 
     /**
+     * 按修改时间排序（用于自动扫描的照片）
+     * 从早到晚排序（mtime升序）
+     * 
+     * @private
+     */
+    _mtimeSortFn: (a, b) => {
+        const mtimeA = a.mtime || 0;
+        const mtimeB = b.mtime || 0;
+        return mtimeA - mtimeB;
+    },
+
+    /**
      * 根据分类类型获取对应的排序函数
      * 
      * @param {string} categoryType - 分类类型（'diary' | 'default'）

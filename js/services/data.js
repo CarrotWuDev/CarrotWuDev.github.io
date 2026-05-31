@@ -1,5 +1,8 @@
 import { Parser } from '../core/parser.js';
 import { SortStrategyFactory } from '../core/sort-strategy.js';
+// Import PhotoDiscovery for photo category processing
+// Note: PhotoDiscovery is a singleton that handles auto-discovery logic
+// For now, we declare it as a dynamic import to support lazy loading
 
 const CONFIG_URL = 'contents/博客配置.md';
 
@@ -100,6 +103,11 @@ export const DataService = {
             const markdown = await response.text();
             let items = Parser.parseContent(markdown);
 
+            // NEW: Handle photo category with new source mode (auto-discovery)
+            if (type === 'photo') {
+                items = await this._processPhotoItems(items);
+            }
+
             // 应用排序策略
             SortStrategyFactory.sortItems(items, type);
 
@@ -115,6 +123,88 @@ export const DataService = {
             this._contentCache.set(id, []);
             return [];
         }
+    },
+
+    /**
+     * Process photo items: handle new photo source mode (directory-based auto-discovery)
+     * 调用 GitHub API 实时获取目录下的所有照片，然后与已配置的照片合并去重
+     * 
+     * @private
+     * @param {Array} items - Parsed photo items from markdown
+     * @returns {Promise<Array>} Processed items with auto-discovered photos merged
+     */
+    async _processPhotoItems(items) {
+        if (!Array.isArray(items) || items.length === 0) {
+            return items;
+        }
+
+        // Dynamically import PhotoDiscovery to avoid circular dependencies
+        const { photoDiscoveryInstance } = await import('./photo-discovery.js');
+
+        const processedItems = [];
+
+        for (const item of items) {
+            // Check if this item uses new photo source mode
+            if (item.photoSourceMode && item.photoSourcePath) {
+                try {
+                    // Call GitHub API to get all files in directory
+                    // photoSourcePath format: "assets/images/photos/月亮湖"
+                    const allPhotos = await photoDiscoveryInstance.getPhotosFromDirectory(item.photoSourcePath);
+
+                    // Collect configured photos (those with explicit sub-titles)
+                    const configuredSet = new Set();
+                    if (item.isSet && Array.isArray(item.photos)) {
+                        item.photos.forEach(photo => {
+                            if (photo.photoUrl) {
+                                const filename = photoDiscoveryInstance.constructor.extractFilenameFromUrl(photo.photoUrl);
+                                if (filename) configuredSet.add(filename);
+                            }
+                        });
+                    }
+
+                    // Deduplicate: auto-discovered = all - configured
+                    const autodiscovered = photoDiscoveryInstance.deduplicatePhotos(allPhotos, configuredSet);
+
+                    // Enrich auto-discovered photos with group-level metadata
+                    // GitHub API response format: { name, size, download_url, sha, path, type, ... }
+                    const enrichedAutodiscovered = autodiscovered.map(photo => ({
+                        title: photo.name.replace(/\.[^.]+$/, ''), // Remove extension as title
+                        photoUrl: `${item.photoSourcePath}/${photo.name}`,
+                        photoLocation: item.photoLocation,
+                        photoDate: item.photoDate,
+                        // GitHub API doesn't provide mtime, use sha as stable identifier
+                        sha: photo.sha,
+                        // Store original GitHub API response for potential future use
+                        _githubMetadata: {
+                            size: photo.size,
+                            download_url: photo.download_url
+                        }
+                    }));
+
+                    // Merge and sort: configured photos + auto-discovered
+                    // Configured photos keep their user-specified order
+                    // Auto-discovered photos are kept in GitHub API order (usually alphabetical)
+                    // and get auto-filled sequence numbers
+                    const configured = item.photos || [];
+                    const merged = photoDiscoveryInstance.mergeAndSort(configured, enrichedAutodiscovered);
+
+                    // Update item
+                    item.photos = merged;
+                    item.isSet = merged.length > 1;
+                } catch (error) {
+                    console.error(`[DataService] Failed to process photos for "${item.title}":`, error);
+                    // Fallback: if API fails, keep only configured photos
+                    if (!item.isSet || !Array.isArray(item.photos)) {
+                        item.photos = [];
+                        item.isSet = false;
+                    }
+                }
+            }
+
+            processedItems.push(item);
+        }
+
+        return processedItems;
     },
 
     /**

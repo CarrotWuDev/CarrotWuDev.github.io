@@ -227,6 +227,19 @@ export const Parser = {
             const pDate = parseField(trimmed, '拍摄日期');
             if (pDate) { target.photoDate = pDate; continue; }
 
+            // NEW: Photo Source (directory mode for auto-discovery)
+            const photoSourceRaw = parseField(trimmed, '照片源');
+            if (photoSourceRaw) {
+                // Extract directory path from markdown link: [](../assets/images/photos/dirName)
+                const m = photoSourceRaw.match(/\((.*?)\)$/);
+                let path = m ? m[1] : photoSourceRaw;
+                if (path.startsWith('../')) path = path.substring(3);
+                
+                currentItem.photoSourcePath = path;
+                currentItem.photoSourceMode = true; // Mark as new format
+                continue;
+            }
+
             // Diary fields
             const weather = parseField(trimmed, '天气');
             if (weather) { target.weather = weather; continue; }
