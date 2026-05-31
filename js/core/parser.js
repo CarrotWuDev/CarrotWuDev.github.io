@@ -1,4 +1,6 @@
 import { parseField, parseLink, slugify } from './utils.js';
+import { DateUtils } from './date-utils.js';
+import { SortStrategyFactory } from './sort-strategy.js';
 
 export const Parser = {
     /**
@@ -90,6 +92,11 @@ export const Parser = {
                     if (order) currentCategory.order = parseInt(order, 10);
                     const color = parseField(trimmed, '强调色');
                     if (color) currentCategory.color = color;
+
+                    // 解析展示限制（最多显示的项目数）
+                    const limit = parseField(trimmed, '展示限制');
+                    if (limit) currentCategory.limit = limit;
+
                     if (trimmed.startsWith('链接：')) {
                         const m = trimmed.match(/\((.*?)\)$/);
                         if (m) {
@@ -126,10 +133,17 @@ export const Parser = {
             // H2: New Item
             if (/^##\s+/.test(trimmed)) {
                 pushItem();
+                const title = trimmed.replace(/^##\s+/, '').trim();
                 currentItem = {
-                    title: trimmed.replace(/^##\s+/, '').trim(),
+                    title: title,
                     photos: [] // For photo sets
                 };
+                // 尝试从标题提取日期（用于日记等时间性内容）
+                const dateObj = DateUtils.extractDateFromTitle(title);
+                if (dateObj) {
+                    currentItem.date = dateObj;
+                    currentItem.dateTimestamp = DateUtils.getComparableDate(dateObj);
+                }
                 continue;
             }
 
@@ -320,27 +334,9 @@ export const Parser = {
         }
         pushItem();
 
-        // Sort Items
-        const sortFn = (a, b) => {
-            // Safe compare: default to 999 if no order
-            const oA = a.order || '999';
-            const oB = b.order || '999';
-            // Try numeric sort first
-            const nA = parseFloat(oA);
-            const nB = parseFloat(oB);
-            if (!isNaN(nA) && !isNaN(nB) && nA !== nB) return nA - nB;
-            // Fallback to string sort
-            return oA.localeCompare(oB);
-        };
-
-        items.sort(sortFn);
-
-        // Sort Sub-items (Photos in Gallery)
-        items.forEach(item => {
-            if (item.isSet && item.photos) {
-                item.photos.sort(sortFn);
-            }
-        });
+        // 注意：排序策略由调用者通过 categoryType 参数指定
+        // 这里保持数据结构完整，排序延迟到 DataService 层进行
+        // 以支持不同分类的不同排序规则
 
         return items;
     }

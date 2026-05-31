@@ -1,4 +1,5 @@
 import { Parser } from '../core/parser.js';
+import { SortStrategyFactory } from '../core/sort-strategy.js';
 
 const CONFIG_URL = 'contents/博客配置.md';
 
@@ -43,11 +44,11 @@ export const DataService = {
      * 加载单个分类的内容
      * 支持缓存和请求去重
      * 
-     * @param {Object} category - 分类对象，需包含 id 和 path 属性
+     * @param {Object} category - 分类对象，需包含 id、path、type 和 limit 属性
      * @returns {Promise<Array>} 分类内容项数组
      */
     async loadCategoryContent(category) {
-        const { id, path } = category;
+        const { id, path, type = 'default', limit } = category;
 
         // 无路径则返回空数组
         if (!path) {
@@ -65,7 +66,7 @@ export const DataService = {
         }
 
         // 创建加载 Promise
-        const loadPromise = this._fetchAndParseCategoryContent(id, path);
+        const loadPromise = this._fetchAndParseCategoryContent(id, path, type, limit);
         this._pendingRequests.set(id, loadPromise);
 
         try {
@@ -78,13 +79,15 @@ export const DataService = {
     },
 
     /**
-     * 实际执行分类内容的获取和解析
+     * 实际执行分类内容的获取、解析、排序、限制
      * @private
      * @param {string} id - 分类 ID
      * @param {string} path - 分类文件路径
+     * @param {string} type - 分类类型（用于选择排序策略）
+     * @param {string|number} limit - 最多显示的项目数（可选）
      * @returns {Promise<Array>} 分类内容项数组
      */
-    async _fetchAndParseCategoryContent(id, path) {
+    async _fetchAndParseCategoryContent(id, path, type = 'default', limit) {
         try {
             const response = await fetch(path);
 
@@ -95,7 +98,13 @@ export const DataService = {
             }
 
             const markdown = await response.text();
-            const items = Parser.parseContent(markdown);
+            let items = Parser.parseContent(markdown);
+
+            // 应用排序策略
+            SortStrategyFactory.sortItems(items, type);
+
+            // 应用数量限制
+            items = this._limitItems(items, limit);
 
             // 写入缓存
             this._contentCache.set(id, items);
@@ -106,6 +115,43 @@ export const DataService = {
             this._contentCache.set(id, []);
             return [];
         }
+    },
+
+    /**
+     * 根据配置限制项目数量
+     * @private
+     * @param {Array} items - 内容项数组
+     * @param {string|number|undefined} limit - 限制数量
+     * @returns {Array} 限制后的数组
+     * 
+     * 限制规则：
+     * - 无 limit 或为 undefined/null：返回全部
+     * - limit 为 '999' 或 999：返回全部（特殊值表示不限制）
+     * - limit 为正整数：返回前 limit 条
+     * - limit 为非法值：记录警告，返回全部
+     */
+    _limitItems(items, limit) {
+        // 检查输入
+        if (!Array.isArray(items)) {
+            return [];
+        }
+
+        // 未指定限制或为 999：返回全部
+        if (limit === undefined || limit === null || limit === '999' || limit === 999) {
+            return items;
+        }
+
+        // 转换为数字
+        const numLimit = parseInt(limit, 10);
+
+        // 检查合法性
+        if (isNaN(numLimit) || numLimit <= 0) {
+            console.warn(`[DataService] Invalid limit value: "${limit}", displaying all items`);
+            return items;
+        }
+
+        // 返回前 limit 条
+        return items.slice(0, numLimit);
     },
 
     /**
