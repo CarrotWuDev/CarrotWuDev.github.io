@@ -345,6 +345,41 @@ export const RenderService = {
 
         // 移除加载状态的 ARIA 属性
         contentEl.removeAttribute('aria-live');
+
+        // 如果是图片类型，初始化图片加载管理
+        if (type === 'photo' && hasItems) {
+            this._initializeImageLoading(sectionEl);
+        }
+    },
+
+    /**
+     * 初始化图片加载管理（针对图集）
+     * @private
+     * @param {HTMLElement} sectionEl - section 元素
+     */
+    _initializeImageLoading(sectionEl) {
+        try {
+            // 动态导入 ImageLoadManager
+            import('../services/image-load-manager.js').then(({ ImageLoadManager }) => {
+                // 初始化管理器
+                ImageLoadManager.init();
+
+                // 注册所有图集
+                const galleries = sectionEl.querySelectorAll('.card.is-gallery');
+                galleries.forEach(gallery => {
+                    ImageLoadManager.registerGalleryImages(gallery);
+                });
+
+                // 调试：输出统计信息
+                if (window.__DEV__) {
+                    console.debug('[RenderService] Image loading initialized', ImageLoadManager.getStats());
+                }
+            }).catch(err => {
+                console.error('[RenderService] Failed to initialize image loading:', err);
+            });
+        } catch (err) {
+            console.error('[RenderService] Error initializing image loading:', err);
+        }
     },
 
     /**

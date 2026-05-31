@@ -1,5 +1,6 @@
 import { slugify } from '../core/utils.js';
 import { ImageProxyService } from '../services/image-proxy.js';
+import { ImageLoadManager } from '../services/image-load-manager.js';
 
 /**
  * CardRenderer - 负责生成各种类型的卡片 HTML
@@ -53,18 +54,49 @@ export const CardRenderer = {
      * @param {Object} [options.dataAttrs={}] - data-* 属性
      * @returns {string} img 标签 HTML
      */
-    img({ src, alt = '', className = '', lazy = true, dataAttrs = {} }) {
+    /**
+     * 渲染图片标签（统一处理代理和懒加载）
+     * 
+     * @param {Object} options - 图片选项
+     * @param {string} options.src - 图片源地址
+     * @param {string} [options.alt=''] - 替代文本
+     * @param {string} [options.className=''] - CSS 类名
+     * @param {boolean} [options.lazy=true] - 是否启用懒加载（data-src 模式）
+     * @param {string} [options.loadType='display'] - 加载类型（display/preload/thumbnail）
+     * @param {Object} [options.dataAttrs={}] - 自定义 data-* 属性
+     * @returns {string} img 标签 HTML
+     */
+    img({ src, alt = '', className = '', lazy = true, loadType = 'display', dataAttrs = {} }) {
         if (!src) return '';
 
-        const proxiedSrc = ImageProxyService.getProxiedUrl(src);
-        const loadingAttr = lazy ? 'loading="lazy"' : '';
+        // 懒加载模式：用 data-src + 占位符
+        if (lazy) {
+            // 根据加载类型选择优化参数
+            let optimizeOptions = { width: 800, quality: 80 };
+            if (loadType === 'preload') {
+                optimizeOptions = { width: 500, quality: 75 };
+            } else if (loadType === 'thumbnail') {
+                optimizeOptions = { width: 300, quality: 70 };
+            }
 
-        // 构建 data-* 属性字符串
+            const realSrc = ImageProxyService.getOptimizedUrl(src, optimizeOptions);
+            const placeholderSrc = ImageProxyService.getPlaceholderUrl();
+
+            const dataAttrStr = Object.entries(dataAttrs)
+                .map(([key, value]) => `data-${key}="${value}"`)
+                .join(' ');
+
+            return `<img class="${className}" src="${placeholderSrc}" data-src="${realSrc}" loading="lazy" alt="${alt}" ${dataAttrStr}>`.trim();
+        }
+
+        // 非懒加载模式：直接加载
+        const proxiedSrc = ImageProxyService.getOptimizedUrl(src, { width: 1000, quality: 85 });
+
         const dataAttrStr = Object.entries(dataAttrs)
             .map(([key, value]) => `data-${key}="${value}"`)
             .join(' ');
 
-        return `<img class="${className}" src="${proxiedSrc}" ${loadingAttr} alt="${alt}" ${dataAttrStr}>`.trim();
+        return `<img class="${className}" src="${proxiedSrc}" alt="${alt}" ${dataAttrStr}>`.trim();
     },
 
     renderHeader(title, status) {
@@ -139,7 +171,7 @@ export const CardRenderer = {
         // 封面区域：包含封面图片和状态标签
         const coverSection = it.cover ? `
             <div class="book-cover-wrapper">
-                ${this.img({ src: it.cover, alt: `${it.title} 封面`, className: 'book-cover' })}
+                ${this.img({ src: it.cover, alt: `${it.title} 封面`, className: 'book-cover', lazy: false })}
                 ${it.status ? `<div class="book-status">${it.status}</div>` : ''}
             </div>
         ` : '';
@@ -161,7 +193,7 @@ export const CardRenderer = {
         // 封面区域：包含封面图片和状态标签
         const coverSection = it.cover ? `
             <div class="game-cover-wrapper">
-                ${this.img({ src: it.cover, alt: `${it.title} 封面`, className: 'card-cover' })}
+                ${this.img({ src: it.cover, alt: `${it.title} 封面`, className: 'card-cover', lazy: false })}
                 ${it.status ? `<div class="game-status">${it.status}</div>` : ''}
             </div>
         ` : '';
@@ -184,8 +216,8 @@ export const CardRenderer = {
 
     cardPhoto(it) {
         const meta = [it.photoLocation, it.photoDate].filter(Boolean).join(' <span class="dot">&bull;</span> ');
-        // 获取代理后的图片 URL，用于 lightbox
-        const proxiedPhotoUrl = it.photoUrl ? ImageProxyService.getProxiedUrl(it.photoUrl) : '';
+        // 获取代理后的图片 URL，用于 lightbox（高质量）
+        const proxiedPhotoUrl = it.photoUrl ? ImageProxyService.getOptimizedUrl(it.photoUrl, { width: 1200, quality: 90 }) : '';
 
         return `
         <div class="card card-photo ${it.photoUrl ? 'has-photo' : ''}">
@@ -193,6 +225,7 @@ export const CardRenderer = {
             src: it.photoUrl,
             alt: it.title,
             className: 'card-photo-img lightbox-trigger',
+            lazy: false,
             dataAttrs: { src: proxiedPhotoUrl, caption: it.title }
         }) : ''}
             <h3 data-tooltip="${it.title || ''}">${it.title || '未命名'}</h3>
@@ -202,13 +235,20 @@ export const CardRenderer = {
 
     cardGallery(it) {
         const photosHtml = it.photos.map((p, idx) => {
-            const proxiedPhotoUrl = p.photoUrl ? ImageProxyService.getProxiedUrl(p.photoUrl) : '';
+            // lightbox 用高质量版本
+            const proxiedPhotoUrl = p.photoUrl ? ImageProxyService.getOptimizedUrl(p.photoUrl, { width: 1200, quality: 90 }) : '';
+            
+            // 首张图（idx === 0）立即加载；其他图懒加载
+            const isFirstImage = idx === 0;
+            
             return `
             <div class="gallery-item" id="alb-${slugify(it.title)}-${idx}">
                 ${p.photoUrl ? this.img({
                 src: p.photoUrl,
                 alt: p.title || '图集',
                 className: 'card-photo-img lightbox-trigger',
+                lazy: !isFirstImage,
+                loadType: isFirstImage ? 'display' : 'preload',
                 dataAttrs: { src: proxiedPhotoUrl, caption: p.title }
             }) : ''}
                 <div class="gallery-info">
@@ -261,7 +301,7 @@ export const CardRenderer = {
                 <!-- Stub -->
                 <div class="film-stub">
                     ${it.status ? `<div class="film-status">${it.status}</div>` : ''}
-                    ${it.cover ? this.img({ src: it.cover, alt: it.title, className: 'film-poster' }) : ''}
+                    ${it.cover ? this.img({ src: it.cover, alt: it.title, className: 'film-poster', lazy: false }) : ''}
                 </div>
 
                 <!-- Main -->
@@ -307,7 +347,8 @@ export const CardRenderer = {
             ${it.image ? this.img({
             src: it.image,
             alt: '日记配图',
-            className: 'diary-image'
+            className: 'diary-image',
+            lazy: false
         }) : ''}
             ${it.content ? `<div class="diary-content"><p>${it.content}</p></div>` : ''}
         </article>`;

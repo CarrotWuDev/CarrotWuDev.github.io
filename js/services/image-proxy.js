@@ -215,6 +215,67 @@ export const ImageProxyService = {
     },
 
     /**
+     * 获取优化后的图片 URL（带尺寸/质量参数）
+     * 用于展示和加载阶段
+     * 
+     * @param {string} originalUrl - 原始图片 URL
+     * @param {Object} [options] - 优化选项
+     * @param {number} [options.width=800] - 目标宽度（像素）
+     * @param {number} [options.quality=80] - 图片质量（1-100）
+     * @param {string} [options.format='auto'] - 输出格式（auto/webp/jpeg/png）
+     * @returns {string} 优化后的代理 URL
+     */
+    getOptimizedUrl(originalUrl, options = {}) {
+        this._ensureInitialized();
+
+        const { width = 800, quality = 80, format = 'auto' } = options;
+
+        // 先获取基础代理 URL
+        const baseProxiedUrl = this.getProxiedUrl(originalUrl);
+
+        // 如果不需要代理，返回原 URL（无法添加 weserv 参数）
+        if (!this.shouldProxy(this.resolveUrl(originalUrl))) {
+            return baseProxiedUrl;
+        }
+
+        // 为 weserv.nl 代理 URL 添加优化参数
+        // 参数说明：
+        // w=宽度: 缩放到指定宽度
+        // q=质量: 1-100，推荐 75-85（对 JPEG）
+        // f=格式: auto 表示自动选择最优格式（WebP/AVIF/JPEG）
+        const params = `&w=${width}&q=${quality}&f=${format}`;
+        return `${baseProxiedUrl}${params}`;
+    },
+
+    /**
+     * 获取预加载用的中等尺寸 URL（用于渐进加载）
+     * 尺寸：500px，质量：75%（平衡体积和清晰度）
+     * 
+     * @param {string} originalUrl - 原始图片 URL
+     * @returns {string} 预加载 URL
+     */
+    getPreloadUrl(originalUrl) {
+        return this.getOptimizedUrl(originalUrl, {
+            width: 500,
+            quality: 75,
+            format: 'auto'
+        });
+    },
+
+    /**
+     * 获取极小的模糊占位符 URL（Base64 编码）
+     * 用作 loading 状态下的初始 src
+     * 这是一个 1×1 像素的灰色 JPEG（极小，~200 字节）
+     * 
+     * @returns {string} Base64 Data URL
+     */
+    getPlaceholderUrl() {
+        // 1×1 灰色像素的最小 JPEG（Base64）
+        // 生成方式：gray.jpg 压缩到极限
+        return 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8VAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k=';
+    },
+
+    /**
      * 获取当前配置（只读）
      * 
      * @returns {Readonly<ProxyConfig>} 当前配置
