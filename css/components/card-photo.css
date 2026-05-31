@@ -123,7 +123,7 @@
 .gallery-container {
     display: flex;
     overflow-x: auto;
-    scroll-snap-type: x mandatory;
+    scroll-snap-type: x proximity;
     width: 100%;
     scrollbar-width: none;
     /* Firefox 隐藏滚动条 */
